@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AscentLanguage", "AscentLanguage\AscentLanguage.csproj", "{3CCDE5B3-5270-477F-80DD-8722DF76D154}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AscentLanguage.Tests", "AscentLanguage.Tests\AscentLanguage.Tests.csproj", "{8DEE045E-57A2-4BFD-AF90-DA79CDE663F3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3CCDE5B3-5270-477F-80DD-8722DF76D154}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CCDE5B3-5270-477F-80DD-8722DF76D154}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CCDE5B3-5270-477F-80DD-8722DF76D154}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CCDE5B3-5270-477F-80DD-8722DF76D154}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DEE045E-57A2-4BFD-AF90-DA79CDE663F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DEE045E-57A2-4BFD-AF90-DA79CDE663F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DEE045E-57A2-4BFD-AF90-DA79CDE663F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DEE045E-57A2-4BFD-AF90-DA79CDE663F3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7C98568E-2AC8-41CA-AE40-FAF3E68EC4D9}
+	EndGlobalSection
+EndGlobal
