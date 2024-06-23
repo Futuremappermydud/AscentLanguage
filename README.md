@@ -6,14 +6,14 @@ Before you get too deep, please take note that as of right now Ascent can only b
 Ascent isn't meant to be a full programming language. It's meant to be more simple and also very fast to quick.
 # What Ascent *is* for
 Ascent's primary use case is adding scripting to places that are user-controlled and otherwise hardcoded. 
-- For example animating game elements in user-made objects through JSON. For this we have a feature inspired by Molang called Query Variables (Read more about these in the [Basics](#Basics)section!). These are especially helpful when thinking about implementation within games and other real-time applications.
+- For example animating game elements in user-made objects through JSON. For this we have a feature inspired by Molang called Query Variables (Read more about these in the [Basics](#Basics) section!). These are especially helpful when thinking about implementation within games and other real-time applications.
 # Performance
 Basic performance metrics are laid out [here!](./PERFORMANCE.md)
 # Basics
 - The Evaluator
 	- The Evaluator is the main part of Ascent. It's static so all you have to do to get started is call `AscentEvaluator.Evaluate(expression, variableMap?, cache?, debug?);` and get back the float value returned! It's super simple.
 - Query Variables
-	- Query Variables are passed into the evaluator using a `AscentVariableMap` and allow the implementing program to pass outside values into Molang expressions. These are the basis of the language. Query Variables are prefixed with either `query.` or `q.` .
+	- Query Variables are passed into the evaluator using a `AscentVariableMap` and allow the implementing program to pass outside values into Ascent expressions. These are the basis of the language. Query Variables are prefixed with either `query.` or `q.` .
 	- Example:
 		- Implementation `var result = AscentEvaluator.Evaluate("q.x", new AscentVariableMap(new Dictionary<string, float>() { { "x", 5f }}));`
 		- Result: `5`
@@ -22,7 +22,7 @@ Basic performance metrics are laid out [here!](./PERFORMANCE.md)
 - Implicit Return
 	- The return of a statement is defined by the last separate expression with neither a assignment, definition, or similar. For example an expression of `lerp(5, 10, 0.5)` will return 7.5. Returns can also be explicit! Just place return before your statement.
 - Variables
-	- Variables are similar to Query Variables in that they can be accessed within Molang, but they are different in a few ways. One way is that Variables cannot be defined in the implementing code but they can be read after evaluation. Another way is that Variables are defined in the expression using `let` similar to JavaScript.
+	- Variables are similar to Query Variables in that they can be accessed within Ascent, but they are different in a few ways. One way is that Variables cannot be defined in the implementing code but they can be read after evaluation. Another way is that Variables are defined in the expression using `let` similar to JavaScript.
 	- Example:
 		- Ascent: `let queryExample = 15; queryExample;`
 		- Result: `15`
