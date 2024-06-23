@@ -45,7 +45,6 @@ namespace AscentLanguage.Tokenizer
 			string scope = "";
 
 			string trimmedExpression = new string(expression.ToCharArray().Where(x=>!char.IsWhiteSpace(x)).ToArray());
-			Console.WriteLine(trimmedExpression);
 
 			int strLength = trimmedExpression.Length;
 			MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(trimmedExpression));

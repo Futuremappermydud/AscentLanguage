@@ -6,7 +6,18 @@ namespace AscentLanguage
 {
 	public static class AscentEvaluator
 	{
-		private static Dictionary<string, Expression[]> cachedExpressions = new Dictionary<string, Expression[]>();
+		private class CacheData
+		{
+			internal Expression[] expressions;
+			internal Dictionary<string, FunctionDefinition> functions;
+
+			public CacheData(Expression[] expressions, Dictionary<string, FunctionDefinition> functions)
+			{
+				this.expressions = expressions;
+				this.functions = functions;
+			}
+		}
+		private static Dictionary<string, CacheData> cachedExpressions = new Dictionary<string, CacheData>();
 		public static float Evaluate(string expression, AscentVariableMap? variableMap = null, bool cache = true, bool debug = false)
 		{
 			if(variableMap == null)
@@ -18,7 +29,8 @@ namespace AscentLanguage
 			List<Expression> toEvaluate = new List<Expression>();
 			if (cachedExpressions.ContainsKey(expression) && cache)
 			{
-				toEvaluate = cachedExpressions[expression].ToList();
+				toEvaluate = cachedExpressions[expression].expressions.ToList();
+				variableMap.Functions = cachedExpressions[expression].functions;
 			}
 			else
 			{
@@ -62,7 +74,7 @@ namespace AscentLanguage
 					toEvaluate.Add(parsedExpression);
 				}
 				if (cache)
-					cachedExpressions[expression] = toEvaluate.ToArray();
+					cachedExpressions[expression] = new CacheData(toEvaluate.ToArray(), variableMap.Functions);
 			}
 			float result = 0f;
 			foreach (var evaluate in toEvaluate)

@@ -7,6 +7,8 @@ Ascent isn't meant to be a full programming language. It's meant to be more simp
 # What Ascent *is* for
 Ascent's primary use case is adding scripting to places that are user-controlled and otherwise hardcoded. 
 - For example animating game elements in user-made objects through JSON. For this we have a feature inspired by Molang called Query Variables (Read more about these in the [Basics](#Basics)section!). These are especially helpful when thinking about implementation within games and other real-time applications.
+# Performance
+Basic performance metrics are laid out [here!](./PERFORMANCE.md)
 # Basics
 - The Evaluator
 	- The Evaluator is the main part of Ascent. It's static so all you have to do to get started is call `AscentEvaluator.Evaluate(expression, variableMap?, cache?, debug?);` and get back the float value returned! It's super simple.
@@ -66,7 +68,7 @@ function k(a) {
 return k(test(test(2, 1), 2))
 ```
 # Roadmap
-- [ ] Performance metrics.
+- [x] Performance metrics.
 - [ ] Syntax Error Handling
 - [ ] API to add functions from implementing code.
 - [ ] Translate to C++ as an additional language.
