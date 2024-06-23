@@ -6,7 +6,7 @@ Before you get too deep, please take note that as of right now Ascent can only b
 Ascent isn't meant to be a full programming language. It's meant to be more simple and also very fast to quick.
 # What Ascent *is* for
 Ascent's primary use case is adding scripting to places that are user-controlled and otherwise hardcoded. 
-- For example animating game elements in user-made objects through JSON. For this we have a feature inspired by Molang called Query Variables (Read more about these in the [Basics] section!). These are especially helpful when thinking about implementation within games and other real-time applications.
+- For example animating game elements in user-made objects through JSON. For this we have a feature inspired by Molang called Query Variables (Read more about these in the [Basics](#Basics)section!). These are especially helpful when thinking about implementation within games and other real-time applications.
 # Basics
 - The Evaluator
 	- The Evaluator is the main part of Ascent. It's static so all you have to do to get started is call `AscentEvaluator.Evaluate(expression, variableMap?, cache?, debug?);` and get back the float value returned! It's super simple.
