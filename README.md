@@ -18,7 +18,7 @@ Ascent's primary use case is adding scripting to places that are user-controlled
 - Expressions
 	- Expressions are essentially a group of instructions. Expressions can also contain expressions inside (for example function arguments). Expressions are separated by semi-colons.
 - Implicit Return
-	- The return of a statement is defined by the last separate expression with neither a assignment, definition, or similar. For example an expression of `lerp(5, 10, 0.5)` will return 7.5.
+	- The return of a statement is defined by the last separate expression with neither a assignment, definition, or similar. For example an expression of `lerp(5, 10, 0.5)` will return 7.5. Returns can also be explicit! Just place return before your statement.
 - Variables
 	- Variables are similar to Query Variables in that they can be accessed within Molang, but they are different in a few ways. One way is that Variables cannot be defined in the implementing code but they can be read after evaluation. Another way is that Variables are defined in the expression using `let` similar to JavaScript.
 	- Example:
@@ -51,12 +51,26 @@ Ascent's primary use case is adding scripting to places that are user-controlled
 	11. Frac
 	12. Lerp
 	15. ... And more [Here](https://github.com/Futuremappermydud/AscentLanguage/blob/main/AscentLanguage/Lang/Functions/AscentFunctions.cs#L12)
+- Function Definitions
+	- Function definitions are written by you! They do have a specific syntax however... Inside of a function definition, lines must be separated by a comma instead of a semi-colon. And a semi-colon must be placed at the end of a function definition.
+	- Example:
+```
+function test(add1, add2) {
+    return add1 + add2
+};
+
+function k(a) {
+    return a * 2
+};
+
+return k(test(test(2, 1), 2))
+```
 # Roadmap
 - [ ] Performance metrics.
 - [ ] Syntax Error Handling
 - [ ] API to add functions from implementing code.
 - [ ] Translate to C++ as an additional language.
-- [ ] Support creating functions from within Ascent code.
+- [x] Support creating functions from within Ascent code.
 - [ ] Rewrite parser to be more modular/legible.
 - [ ] Refactor to allow strings, booleans, etc.
 - [ ] Translate to C++ as an additional language.
