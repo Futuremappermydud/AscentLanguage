@@ -1,10 +1,15 @@
 # Ascent 
 A quick, programmatic, interpreted language inspired by Molang.
+# Where can Ascent be used?
+Before you get too deep, take note that as of right now Ascent can only be implemented in C# Codebases. I plan on creating a C++ version of Ascent in the future.
 # What Ascent *Isn't* for
 Ascent isn't meant to be a full programming language. It's meant to be more simple and also very fast to quick.
 # What Ascent *is* for
-Ascent is meant for adding scripting to places that are user-controlled and otherwise hardcoded. For example animating game elements in user-made objects through JSON. Another feature that was inspired by Molang are query variables (Read more about these in the basics section!), these are especially helpful when thinking about implementation inside games and other real-time applications.
+Ascent's primary use case is adding scripting to places that are user-controlled and otherwise hardcoded. 
+- For example animating game elements in user-made objects through JSON. For this we have a feature inspired by Molang called Query Variables (Read more about these in the [Basics] section!). These are especially helpful when thinking about implementation within games and other real-time applications.
 # Basics
+- The Evaluator
+	- The Evaluator is the main part of Ascent. It's static so all you have to do to get started is call `AscentEvaluator.Evaluate(expression, variableMap?, cache?, debug?);` and get back the float value returned! It's super simple.
 - Query Variables
 	- Query Variables are passed into the evaluator using a `AscentVariableMap` and allow the implementing program to pass outside values into Molang expressions. These are the basis of the language. Query Variables are prefixed with either `query.` or `q.` .
 	- Example:
@@ -48,11 +53,13 @@ Ascent is meant for adding scripting to places that are user-controlled and othe
 	15. ... And more [Here](https://github.com/Futuremappermydud/AscentLanguage/blob/main/AscentLanguage/Lang/Functions/AscentFunctions.cs#L12)
 # Roadmap
 - [ ] Performance metrics.
+- [ ] Syntax Error Handling
 - [ ] API to add functions from implementing code.
 - [ ] Translate to C++ as an additional language.
 - [ ] Support creating functions from within Ascent code.
 - [ ] Rewrite parser to be more modular/legible.
 - [ ] Refactor to allow strings, booleans, etc.
+- [ ] Translate to C++ as an additional language.
 - [ ] Add Ascent code examples.
 - [ ] Add more functions to the default list.
 - [ ] More in the future?
