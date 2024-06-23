@@ -13,7 +13,7 @@ namespace AscentLanguage
 			QueryVariables = queryVariables;
 		}
 
-		public Dictionary<string, float> QueryVariables { get; set; } = new Dictionary<string, float>();
+		public Dictionary<string, float> QueryVariables { get; set; }
 		public Dictionary<string, float> Variables { get; set; } = new Dictionary<string, float>();
 	}
 }
