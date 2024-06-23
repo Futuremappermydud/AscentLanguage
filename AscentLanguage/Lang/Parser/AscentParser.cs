@@ -203,6 +203,13 @@ namespace AscentLanguage.Parser
 				return new NilExpression(token);
 			}
 
+			if(CurrentTokenIs(TokenType.Return))
+			{
+				_position++;
+				var ret = ParseExpression(variableMap);
+				return new ReturnExpression(ret);
+			}
+
 			throw new FormatException("Unexpected token");
 		}
 

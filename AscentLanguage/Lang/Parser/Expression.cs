@@ -280,4 +280,19 @@ namespace AscentLanguage.Parser
 			return null;
 		}
 	}
+
+	public class ReturnExpression : Expression
+	{
+		public Expression Expression { get; }
+
+		public ReturnExpression(Expression expression)
+		{
+			Expression = expression;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			return Expression.Evaluate(ascentVariableMap);
+		}
+	}
 }

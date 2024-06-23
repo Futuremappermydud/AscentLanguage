@@ -27,6 +27,7 @@ namespace AscentLanguage.Tokenizer
 			new SingleCharTokenizer(',', TokenType.Comma, false),
 			new SingleCharTokenizer('{', TokenType.LeftScope, false),
 			new SingleCharTokenizer('}', TokenType.RightScope, false),
+			new WordMatchTokenizer("return", TokenType.Return),
 			new FunctionDefinitionTokenizer(),
 			new FunctionArgumentTokenizer(),
 			new FunctionTokenizer(),
@@ -43,7 +44,8 @@ namespace AscentLanguage.Tokenizer
 			List<Token> tokens = new List<Token>();
 			string scope = "";
 
-			string trimmedExpression = expression.Replace(" ", "");
+			string trimmedExpression = new string(expression.ToCharArray().Where(x=>!char.IsWhiteSpace(x)).ToArray());
+			Console.WriteLine(trimmedExpression);
 
 			int strLength = trimmedExpression.Length;
 			MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(trimmedExpression));

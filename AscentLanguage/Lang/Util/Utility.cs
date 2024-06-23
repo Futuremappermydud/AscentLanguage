@@ -149,6 +149,11 @@ namespace AscentLanguage.Util
 				Console.WriteLine($"{GetIndent(indentLevel)}GrabVariable:");
 				Console.WriteLine($"{GetIndent(indentLevel + 4)}Variable: {new string(variableExpr.VariableToken.tokenBuffer)}");
 			}
+			else if (expr is ReturnExpression returnExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}Return:");
+				PrintExpression(returnExpr.Expression, indentLevel + 2);
+			}
 			else
 			{
 				throw new InvalidOperationException("Invalid expression type");

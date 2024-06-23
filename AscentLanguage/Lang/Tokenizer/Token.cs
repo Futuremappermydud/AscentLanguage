@@ -28,6 +28,7 @@
 		LeftScope,
 		RightScope,
 		FunctionArgument,
+		Return
 	}
 	public struct Token
 	{
