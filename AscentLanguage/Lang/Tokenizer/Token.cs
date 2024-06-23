@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AscentLanguage.Tokenizer
+﻿namespace AscentLanguage.Tokenizer
 {
 	public enum TokenType
 	{
@@ -29,7 +23,12 @@ namespace AscentLanguage.Tokenizer
 		Assignment,
 		Variable,
 		SemiColon,
-		Function
+		Function,
+		FunctionDefinition,
+		LeftScope,
+		RightScope,
+		FunctionArgument,
+		Return
 	}
 	public struct Token
 	{

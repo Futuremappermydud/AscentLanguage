@@ -1,12 +1,6 @@
-﻿using AscentLanguage.Functions;
+﻿using AscentLanguage.Parser;
 using AscentLanguage.Util;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace AscentLanguage.Tokenizer
 {
@@ -31,6 +25,11 @@ namespace AscentLanguage.Tokenizer
 			new SingleCharTokenizer(':', TokenType.Colon, true),
 			new SingleCharTokenizer(';', TokenType.SemiColon, false),
 			new SingleCharTokenizer(',', TokenType.Comma, false),
+			new SingleCharTokenizer('{', TokenType.LeftScope, false),
+			new SingleCharTokenizer('}', TokenType.RightScope, false),
+			new WordMatchTokenizer("return", TokenType.Return),
+			new FunctionDefinitionTokenizer(),
+			new FunctionArgumentTokenizer(),
 			new FunctionTokenizer(),
 			new DefinitionTokenizer(),
 			new AssignmentTokenizer(),
@@ -41,9 +40,11 @@ namespace AscentLanguage.Tokenizer
 		public static Token[] Tokenize(string expression)
 		{
 			List<string> variableDefinitions = new List<string>();
+			List<FunctionDefinition> functionDefinitions = new List<FunctionDefinition>();
 			List<Token> tokens = new List<Token>();
+			string scope = "";
 
-			string trimmedExpression = expression.Replace(" ", "");
+			string trimmedExpression = new string(expression.ToCharArray().Where(x=>!char.IsWhiteSpace(x)).ToArray());
 
 			int strLength = trimmedExpression.Length;
 			MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(trimmedExpression));
@@ -55,10 +56,19 @@ namespace AscentLanguage.Tokenizer
 				foreach (var tokenizer in tokenizers)
 				{
 					long position = stream.Position;
-					if (tokenizer.IsMatch(peek, br, stream, ref variableDefinitions))
+					if (tokenizer.IsMatch(peek, br, stream, ref variableDefinitions, ref functionDefinitions, scope, tokens))
 					{
 						stream.Position = position;
-						tokens.Add(tokenizer.GetToken(peek, br, stream, ref variableDefinitions));
+						tokens.Add(tokenizer.GetToken(peek, br, stream, ref variableDefinitions, ref functionDefinitions, scope));
+						if (tokenizer is FunctionDefinitionTokenizer functionDefinitionTokenizer)
+						{
+							var token = tokens.Last();
+							scope = new string(token.tokenBuffer, 0, Utility.FindLengthToUse(token.tokenBuffer));
+						}
+						if (tokenizer is SingleCharTokenizer singleCharTokenizer && singleCharTokenizer.Token == '}')
+						{
+							scope = "";
+						}
 						succeeded = true;
 						break;
 					}

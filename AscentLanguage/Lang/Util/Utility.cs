@@ -9,7 +9,7 @@ namespace AscentLanguage.Util
 {
 	public static class Utility
 	{
-		public static bool SearchForPotential(char c, List<string> strings)
+		public static bool SearchForPotential(char c, IEnumerable<string> strings)
 		{
 			return strings.Any(x => x.StartsWith(c));
 		}
@@ -127,6 +127,16 @@ namespace AscentLanguage.Util
 					PrintExpression(functionExpr.Arguments[i], indentLevel + 4);
 				}
 			}
+			else if (expr is FunctionDefinitionExpression functionDefExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}Function Definition:");
+				Console.WriteLine($"{GetIndent(indentLevel + 4)}Name: {new string(functionDefExpr.FunctionToken.tokenBuffer)}");
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Expressions:");
+				for (int i = 0; i < functionDefExpr.Contents.Length; i++)
+				{
+					PrintExpression(functionDefExpr.Contents[i], indentLevel + 4);
+				}
+			}
 			else if (expr is AssignmentExpression assignmentExpr)
 			{
 				Console.WriteLine($"{GetIndent(indentLevel)}Assignment:");
@@ -138,6 +148,11 @@ namespace AscentLanguage.Util
 			{
 				Console.WriteLine($"{GetIndent(indentLevel)}GrabVariable:");
 				Console.WriteLine($"{GetIndent(indentLevel + 4)}Variable: {new string(variableExpr.VariableToken.tokenBuffer)}");
+			}
+			else if (expr is ReturnExpression returnExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}Return:");
+				PrintExpression(returnExpr.Expression, indentLevel + 2);
 			}
 			else
 			{
