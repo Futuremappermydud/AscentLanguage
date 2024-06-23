@@ -114,7 +114,7 @@ namespace AscentLanguage.Parser
 				_position++; // consume '('
 
 				// Parse function arguments
-				var arguments = ParseFunctionArguments();
+				var arguments = ParseFunctionArguments(false);
 
 				if (!CurrentTokenIs(TokenType.RightParenthesis))
 				{
@@ -123,6 +123,28 @@ namespace AscentLanguage.Parser
 				_position++; // consume ')'
 
 				return new FunctionExpression(functionToken, arguments);
+			}
+
+			if (CurrentTokenIs(TokenType.FunctionDefinition))
+			{
+				var functionToken = _tokens[_position++]; // Get the function token
+
+				if (!CurrentTokenIs(TokenType.LeftScope))
+				{
+					throw new FormatException("Expected '{' after function");
+				}
+				_position++; // consume '{'
+
+				// Parse function contents
+				var contents = ParseFunctionArguments(true);
+
+				if (!CurrentTokenIs(TokenType.RightScope))
+				{
+					throw new FormatException("Missing closing scope for function call");
+				}
+				_position++; // consume '}'
+
+				return new FunctionDefinitionExpression(functionToken, contents);
 			}
 
 			if (NextTokenIs(TokenType.TernaryConditional))
@@ -158,19 +180,23 @@ namespace AscentLanguage.Parser
 			if (CurrentTokenIs(TokenType.Variable))
 			{
 				var variableToken = _tokens[_position];
+				_position++;
 				return new VariableExpression(variableToken);
 			}
 
 			throw new FormatException("Unexpected token");
 		}
 
-		private Expression[] ParseFunctionArguments()
+		private Expression[] ParseFunctionArguments(bool scoped)
 		{
 			var arguments = new List<Expression>();
 
+			int checks = 0;
+
 			// Parse comma-separated list of arguments
-			while (_position < _tokens.Length && !CurrentTokenIs(TokenType.RightParenthesis))
+			while (_position < _tokens.Length && !CurrentTokenIs(scoped ? TokenType.RightScope : TokenType.RightParenthesis) && checks < 30)
 			{
+				checks++;
 				var argument = ParseExpression();
 				arguments.Add(argument);
 
@@ -179,6 +205,8 @@ namespace AscentLanguage.Parser
 					_position++; // consume ','
 				}
 			}
+
+			Console.WriteLine(arguments.Count);
 
 			return arguments.ToArray();
 		}

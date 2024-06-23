@@ -104,6 +104,23 @@ namespace AscentLanguage.Parser
 		}
 	}
 
+	public class FunctionDefinitionExpression : Expression
+	{
+		public Token FunctionToken { get; }
+		public Expression[] Contents { get; }
+
+		public FunctionDefinitionExpression(Token functionToken, Expression[] contents)
+		{
+			FunctionToken = functionToken;
+			Contents = contents;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			return 0f;
+		}
+	}
+
 	public class TernaryExpression : Expression
 	{
 		public Expression Condition { get; set; }

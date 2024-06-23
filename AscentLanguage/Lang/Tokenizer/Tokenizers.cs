@@ -214,7 +214,6 @@ namespace AscentLanguage.Tokenizer
 				check++;
 			}
 			string match = stringBuilder.ToString();
-			Console.WriteLine(match);
 			return variableDefs.Any(x => x == match);
 		}
 	}
@@ -277,6 +276,27 @@ namespace AscentLanguage.Tokenizer
 			}
 			string match = stringBuilder.ToString();
 			return AscentFunctions.GetFunction(match) != null;
+		}
+	}
+
+	public class FunctionDefinitionTokenizer : Tokenizer
+	{
+		private static readonly Tokenizer functionTokenizer = new WordMatchTokenizer("function", TokenType.FunctionDefinition);
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		{
+			functionTokenizer.GetToken(peekChar, br, stream, ref variableDefs);
+			StringBuilder stringBuilder = new StringBuilder();
+			while (br.PeekChar() != '(' && br.PeekChar() != '{')
+			{
+				stringBuilder.Append(br.ReadChar());
+				if (stream.Position >= stream.Length) break;
+			}
+			return new Token(TokenType.FunctionDefinition, stringBuilder.ToString().ToCharArray());
+		}
+
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		{
+			return functionTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, existingTokens);
 		}
 	}
 }

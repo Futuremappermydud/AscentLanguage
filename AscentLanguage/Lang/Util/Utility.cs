@@ -127,6 +127,16 @@ namespace AscentLanguage.Util
 					PrintExpression(functionExpr.Arguments[i], indentLevel + 4);
 				}
 			}
+			else if (expr is FunctionDefinitionExpression functionDefExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}Function:");
+				Console.WriteLine($"{GetIndent(indentLevel + 4)}Name: {new string(functionDefExpr.FunctionToken.tokenBuffer)}");
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Expressions:");
+				for (int i = 0; i < functionDefExpr.Contents.Length; i++)
+				{
+					PrintExpression(functionDefExpr.Contents[i], indentLevel + 4);
+				}
+			}
 			else if (expr is AssignmentExpression assignmentExpr)
 			{
 				Console.WriteLine($"{GetIndent(indentLevel)}Assignment:");

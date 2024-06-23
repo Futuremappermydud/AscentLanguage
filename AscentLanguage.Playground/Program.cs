@@ -4,12 +4,12 @@
 	{
 		static void Main(string[] args)
 		{
-			string functionExpression = "function test(hello) { let x = 5 + hello; x; } test(4)";
+			string functionExpression = "function test { let x = 5 + -2, x }; 5;";
 
 			string rewriteExpression = "lerp(5, 5 + 5, 0.5)";
 			try
 			{
-				float result = AscentEvaluator.Evaluate(rewriteExpression, null, true, true);
+				float result = AscentEvaluator.Evaluate(functionExpression, null, true, true);
 				Console.WriteLine($"Result: {result}");
 			}
 			catch (Exception e)

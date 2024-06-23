@@ -29,7 +29,10 @@ namespace AscentLanguage.Tokenizer
 		Assignment,
 		Variable,
 		SemiColon,
-		Function
+		Function,
+		FunctionDefinition,
+		LeftScope,
+		RightScope,
 	}
 	public struct Token
 	{

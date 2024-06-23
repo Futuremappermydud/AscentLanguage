@@ -1,7 +1,7 @@
 # Ascent 
 A quick, programmatic, interpreted language inspired by Molang.
 # Where can Ascent be used?
-Before you get too deep, take note that as of right now Ascent can only be implemented in C# Codebases. I plan on creating a C++ version of Ascent in the future.
+Before you get too deep, please take note that as of right now Ascent can only be implemented in C# codebases. I plan on expanding to a C++ version of Ascent in the future.
 # What Ascent *Isn't* for
 Ascent isn't meant to be a full programming language. It's meant to be more simple and also very fast to quick.
 # What Ascent *is* for
