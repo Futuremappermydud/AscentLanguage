@@ -14,6 +14,7 @@ namespace AscentLanguage
 				variableMap = new AscentVariableMap(new Dictionary<string, float>());
 			}
 			variableMap.Variables.Clear();
+			variableMap.Functions.Clear();
 			List<Expression> toEvaluate = new List<Expression>();
 			if (cachedExpressions.ContainsKey(expression) && cache)
 			{

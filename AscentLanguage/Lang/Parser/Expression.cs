@@ -117,6 +117,7 @@ namespace AscentLanguage.Parser
 
 		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
 		{
+			ascentVariableMap.Functions.Add(new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer)), Contents);
 			return null;
 		}
 	}
@@ -167,10 +168,27 @@ namespace AscentLanguage.Parser
 
 		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
 		{
-			var function = AscentFunctions.GetFunction(new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer)));
+			var name = new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer));
+			var function = AscentFunctions.GetFunction(name);
 			if (function == null)
 			{
-				throw new ArgumentException($"Function {new string(FunctionToken.tokenBuffer)} does not exist!");
+				if (ascentVariableMap != null && ascentVariableMap.Functions.TryGetValue(name, out var expressions))
+				{
+					float result = 0f;
+					foreach (var expression in expressions)
+					{
+						var res = expression.Evaluate(ascentVariableMap);
+						if(res != null)
+						{
+							result = res.Value;
+						}
+					}
+					return result;
+				}
+				else
+				{
+					throw new ArgumentException($"Function {name} does not exist!");
+				}
 			}
 			return function.Evaluate(Arguments.Select(x => x.Evaluate(ascentVariableMap) ?? 0f).ToArray());
 		}

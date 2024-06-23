@@ -44,6 +44,7 @@ namespace AscentLanguage.Tokenizer
 		public static Token[] Tokenize(string expression)
 		{
 			List<string> variableDefinitions = new List<string>();
+			List<string> functionDefinitions = new List<string>();
 			List<Token> tokens = new List<Token>();
 
 			string trimmedExpression = expression.Replace(" ", "");
@@ -58,10 +59,10 @@ namespace AscentLanguage.Tokenizer
 				foreach (var tokenizer in tokenizers)
 				{
 					long position = stream.Position;
-					if (tokenizer.IsMatch(peek, br, stream, ref variableDefinitions))
+					if (tokenizer.IsMatch(peek, br, stream, ref variableDefinitions, ref functionDefinitions))
 					{
 						stream.Position = position;
-						tokens.Add(tokenizer.GetToken(peek, br, stream, ref variableDefinitions));
+						tokens.Add(tokenizer.GetToken(peek, br, stream, ref variableDefinitions, ref functionDefinitions));
 						succeeded = true;
 						break;
 					}

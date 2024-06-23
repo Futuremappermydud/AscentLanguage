@@ -129,7 +129,7 @@ namespace AscentLanguage.Util
 			}
 			else if (expr is FunctionDefinitionExpression functionDefExpr)
 			{
-				Console.WriteLine($"{GetIndent(indentLevel)}Function:");
+				Console.WriteLine($"{GetIndent(indentLevel)}Function Definition:");
 				Console.WriteLine($"{GetIndent(indentLevel + 4)}Name: {new string(functionDefExpr.FunctionToken.tokenBuffer)}");
 				Console.WriteLine($"{GetIndent(indentLevel + 2)}Expressions:");
 				for (int i = 0; i < functionDefExpr.Contents.Length; i++)

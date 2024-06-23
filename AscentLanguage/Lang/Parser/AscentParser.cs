@@ -52,7 +52,7 @@ namespace AscentLanguage.Parser
 
 					if (!CurrentTokenIs(TokenType.Colon))
 					{
-						throw new Exception("Expected ':' in ternary expression");
+						throw new FormatException("Expected ':' in ternary expression");
 					}
 					_position++; // consume ':'
 
@@ -205,8 +205,6 @@ namespace AscentLanguage.Parser
 					_position++; // consume ','
 				}
 			}
-
-			Console.WriteLine(arguments.Count);
 
 			return arguments.ToArray();
 		}

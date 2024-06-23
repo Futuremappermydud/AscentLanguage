@@ -11,8 +11,8 @@ namespace AscentLanguage.Tokenizer
 {
 	public abstract class Tokenizer
 	{
-		public abstract Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs);
-		public abstract bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null);
+		public abstract Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs);
+		public abstract bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null);
 	}
 
 	public class SingleCharTokenizer : Tokenizer
@@ -28,13 +28,13 @@ namespace AscentLanguage.Tokenizer
 			HasOperand = hasOperand;
 		}
 
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
 			if (stream.Position >= stream.Length && HasOperand) throw new FormatException("Missing Operand!");
 			return new Token(Type, br.ReadChar());
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
 			return peekChar == Token;
 		}
@@ -42,13 +42,13 @@ namespace AscentLanguage.Tokenizer
 
 	public class SubtractionTokenizer : Tokenizer
 	{
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
 			if (stream.Position >= stream.Length) throw new FormatException("Missing Operand!");
 			return new Token(TokenType.Subtraction, '-');
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
 			if(existingTokens != null && existingTokens.Count > 0)
 			{
@@ -68,7 +68,7 @@ namespace AscentLanguage.Tokenizer
 		{
 			return c >= '0' && c <= '9' || c == '.' || c == '-';
 		}
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 			while (IsNumber(br.PeekChar()))
@@ -79,7 +79,7 @@ namespace AscentLanguage.Tokenizer
 			return new Token(TokenType.Constant, stringBuilder.ToString().ToCharArray());
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
 			return IsNumber(peekChar);
 		}
@@ -96,13 +96,13 @@ namespace AscentLanguage.Tokenizer
 			Type = type;
 		}
 
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
 			char[] buffer = br.ReadChars(Word.Length);
 			return new Token(Type, buffer);
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
 			if (peekChar == Word[0] && stream.Position < stream.Length)
 			{
@@ -137,7 +137,7 @@ namespace AscentLanguage.Tokenizer
 			return (chara >= 'a' && chara <= 'z') || (chara >= 'A' && chara <= 'Z');
 		}
 
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
 			var stringBuilder = new StringBuilder();
 			while(ContinueFeedingQuery(br.PeekChar()))
@@ -148,10 +148,10 @@ namespace AscentLanguage.Tokenizer
 			return new Token(TokenType.Query, stringBuilder.ToString().ToCharArray());
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
-			bool qMatch = qTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, existingTokens);
-			bool queryMatch = queryTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, existingTokens);
+			bool qMatch = qTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, ref functionDefs, existingTokens);
+			bool queryMatch = queryTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, ref functionDefs, existingTokens);
 			if ((queryMatch || qMatch) && br.ReadChar() == '.')
 			{
 				return true;
@@ -163,7 +163,7 @@ namespace AscentLanguage.Tokenizer
 	public class DefinitionTokenizer : Tokenizer
 	{
 		private static readonly Tokenizer letTokenizer = new WordMatchTokenizer("let", TokenType.Definition);
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
 			br.ReadChars(3);
 			var stringBuilder = new StringBuilder();
@@ -176,9 +176,9 @@ namespace AscentLanguage.Tokenizer
 			return new Token(TokenType.Definition, stringBuilder.ToString().ToCharArray());
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
-			if(letTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, existingTokens))
+			if(letTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, ref functionDefs, existingTokens))
 			{
 				//TODO: Should this be more robust?
 				return true;
@@ -189,7 +189,7 @@ namespace AscentLanguage.Tokenizer
 
 	public class AssignmentTokenizer : Tokenizer
 	{
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 			while (br.PeekChar() != '=')
@@ -197,11 +197,10 @@ namespace AscentLanguage.Tokenizer
 				stringBuilder.Append(br.ReadChar());
 				if (stream.Position >= stream.Length) break;
 			}
-			variableDefs.Add(stringBuilder.ToString());
 			return new Token(TokenType.Assignment, stringBuilder.ToString().ToCharArray());
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
 			if (!Utility.SearchForPotential((char)peekChar, variableDefs)) return false;
 
@@ -220,7 +219,7 @@ namespace AscentLanguage.Tokenizer
 
 	public class VariableTokenizer : Tokenizer
 	{
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 			int check = 0;
@@ -234,7 +233,7 @@ namespace AscentLanguage.Tokenizer
 			return new Token(TokenType.Variable, stringBuilder.ToString().ToCharArray());
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
 			if (!Utility.SearchForPotential((char)peekChar, variableDefs)) return false;
 
@@ -253,7 +252,7 @@ namespace AscentLanguage.Tokenizer
 
 	public class FunctionTokenizer : Tokenizer
 	{
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 			while (!variableDefs.Contains(stringBuilder.ToString()) && br.PeekChar() != '(')
@@ -265,9 +264,9 @@ namespace AscentLanguage.Tokenizer
 			return new Token(TokenType.Function, match.ToCharArray());
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
-			if (!AscentFunctions.SearchAnyFunctions((char)peekChar)) return false;
+			if (!AscentFunctions.SearchAnyFunctions((char)peekChar) && !Utility.SearchForPotential((char)peekChar, functionDefs)) return false;
 			StringBuilder stringBuilder = new StringBuilder();
 			while (AscentFunctions.GetFunction(stringBuilder.ToString()) == null && br.PeekChar() != '(')
 			{
@@ -275,28 +274,29 @@ namespace AscentLanguage.Tokenizer
 				if (stream.Position >= stream.Length) break;
 			}
 			string match = stringBuilder.ToString();
-			return AscentFunctions.GetFunction(match) != null;
+			return AscentFunctions.GetFunction(match) != null || functionDefs.Contains(match);
 		}
 	}
 
 	public class FunctionDefinitionTokenizer : Tokenizer
 	{
 		private static readonly Tokenizer functionTokenizer = new WordMatchTokenizer("function", TokenType.FunctionDefinition);
-		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs)
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs)
 		{
-			functionTokenizer.GetToken(peekChar, br, stream, ref variableDefs);
+			functionTokenizer.GetToken(peekChar, br, stream, ref variableDefs, ref functionDefs);
 			StringBuilder stringBuilder = new StringBuilder();
 			while (br.PeekChar() != '(' && br.PeekChar() != '{')
 			{
 				stringBuilder.Append(br.ReadChar());
 				if (stream.Position >= stream.Length) break;
 			}
+			functionDefs.Add(stringBuilder.ToString());
 			return new Token(TokenType.FunctionDefinition, stringBuilder.ToString().ToCharArray());
 		}
 
-		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, List<Token>? existingTokens = null)
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<string> functionDefs, List<Token>? existingTokens = null)
 		{
-			return functionTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, existingTokens);
+			return functionTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, ref functionDefs, existingTokens);
 		}
 	}
 }

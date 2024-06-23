@@ -4,7 +4,7 @@
 	{
 		static void Main(string[] args)
 		{
-			string functionExpression = "function test { let x = 5 + -2, x }; 5;";
+			string functionExpression = "function test { let x = 5 + -2, x }; test();";
 
 			string rewriteExpression = "lerp(5, 5 + 5, 0.5)";
 			try
