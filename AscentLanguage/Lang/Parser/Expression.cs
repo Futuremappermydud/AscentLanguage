@@ -117,7 +117,7 @@ namespace AscentLanguage.Parser
 
 		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
 		{
-			return 0f;
+			return null;
 		}
 	}
 
