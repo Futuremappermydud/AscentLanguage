@@ -16,6 +16,6 @@ namespace AscentLanguage
 
 		public Dictionary<string, float> QueryVariables { get; set; }
 		public Dictionary<string, float> Variables { get; set; } = new Dictionary<string, float>();
-		internal Dictionary<string, Expression[]> Functions { get; set; } = new Dictionary<string, Expression[]>();
+		internal Dictionary<string, FunctionDefinition> Functions { get; set; } = new Dictionary<string, FunctionDefinition>();
 	}
 }

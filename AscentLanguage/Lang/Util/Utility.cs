@@ -9,7 +9,7 @@ namespace AscentLanguage.Util
 {
 	public static class Utility
 	{
-		public static bool SearchForPotential(char c, List<string> strings)
+		public static bool SearchForPotential(char c, IEnumerable<string> strings)
 		{
 			return strings.Any(x => x.StartsWith(c));
 		}

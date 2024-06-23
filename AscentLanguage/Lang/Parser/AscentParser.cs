@@ -1,4 +1,5 @@
 ﻿using AscentLanguage.Tokenizer;
+using AscentLanguage.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,14 +33,14 @@ namespace AscentLanguage.Parser
 			_position = 0;
 		}
 
-		public Expression ParseExpression()
+		public Expression ParseExpression(AscentVariableMap variableMap)
 		{
-			return ParseBinary(Precedence[TokenType.Addition]);
+			return ParseBinary(Precedence[TokenType.Addition], variableMap);
 		}
 
-		private Expression ParseBinary(int precedence)
+		private Expression ParseBinary(int precedence, AscentVariableMap variableMap)
 		{
-			var left = ParsePrimary();
+			var left = ParsePrimary(variableMap);
 
 			while (_position < _tokens.Length && Precedence.ContainsKey(_tokens[_position].type) && Precedence[_tokens[_position].type] >= precedence)
 			{
@@ -48,7 +49,7 @@ namespace AscentLanguage.Parser
 				if (operatorToken.type == TokenType.TernaryConditional)
 				{
 					// Ternary operator found, parse ternary expression
-					var trueBranch = ParseExpression();
+					var trueBranch = ParseExpression(variableMap);
 
 					if (!CurrentTokenIs(TokenType.Colon))
 					{
@@ -56,14 +57,14 @@ namespace AscentLanguage.Parser
 					}
 					_position++; // consume ':'
 
-					var falseBranch = ParseExpression();
+					var falseBranch = ParseExpression(variableMap);
 
 					left = new TernaryExpression(left, trueBranch, falseBranch);
 				}
 				else
 				{
 					// Normal binary operation
-					var right = ParseBinary(Precedence[operatorToken.type] + 1);
+					var right = ParseBinary(Precedence[operatorToken.type] + 1, variableMap);
 					left = new BinaryExpression(left, operatorToken, right);
 				}
 			}
@@ -71,7 +72,7 @@ namespace AscentLanguage.Parser
 			return left;
 		}
 
-		private Expression ParsePrimary()
+		private Expression ParsePrimary(AscentVariableMap variableMap)
 		{
 			if (CurrentTokenIs(TokenType.Constant) || CurrentTokenIs(TokenType.Query))
 			{
@@ -82,7 +83,7 @@ namespace AscentLanguage.Parser
 			if (CurrentTokenIs(TokenType.LeftParenthesis))
 			{
 				_position++; // consume '('
-				var expression = ParseExpression();
+				var expression = ParseExpression(variableMap);
 				if (!CurrentTokenIs(TokenType.RightParenthesis))
 				{
 					throw new FormatException("Missing closing parenthesis");
@@ -94,7 +95,7 @@ namespace AscentLanguage.Parser
 			if (CurrentTokenIs(TokenType.LeftBracket))
 			{
 				_position++; // consume '['
-				var expression = ParseExpression();
+				var expression = ParseExpression(variableMap);
 				if (!CurrentTokenIs(TokenType.RightBracket))
 				{
 					throw new FormatException("Missing closing Bracket");
@@ -114,7 +115,7 @@ namespace AscentLanguage.Parser
 				_position++; // consume '('
 
 				// Parse function arguments
-				var arguments = ParseFunctionArguments(false);
+				var arguments = ParseFunctionArguments(false, variableMap);
 
 				if (!CurrentTokenIs(TokenType.RightParenthesis))
 				{
@@ -129,6 +130,17 @@ namespace AscentLanguage.Parser
 			{
 				var functionToken = _tokens[_position++]; // Get the function token
 
+				if(CurrentTokenIs(TokenType.LeftParenthesis))
+				{
+					_position++; // consume '('
+					var arguments = ParseDefinitionArguments();
+					var name = new string(functionToken.tokenBuffer, 0, Utility.FindLengthToUse(functionToken.tokenBuffer));
+					var definition = new FunctionDefinition(name);
+					variableMap.Functions.Add(name, definition);
+					definition.args = arguments.ToList();
+					_position++; // consume ')'
+				}
+
 				if (!CurrentTokenIs(TokenType.LeftScope))
 				{
 					throw new FormatException("Expected '{' after function");
@@ -136,7 +148,7 @@ namespace AscentLanguage.Parser
 				_position++; // consume '{'
 
 				// Parse function contents
-				var contents = ParseFunctionArguments(true);
+				var contents = ParseFunctionArguments(true, variableMap);
 
 				if (!CurrentTokenIs(TokenType.RightScope))
 				{
@@ -150,12 +162,12 @@ namespace AscentLanguage.Parser
 			if (NextTokenIs(TokenType.TernaryConditional))
 			{
 
-				var condition = ParseExpression();
+				var condition = ParseExpression(variableMap);
 
 				if (CurrentTokenIs(TokenType.TernaryConditional))
 				{
 					_position++; // consume '?'
-					var trueExpression = ParseExpression();
+					var trueExpression = ParseExpression(variableMap);
 
 					if (!CurrentTokenIs(TokenType.Colon))
 					{
@@ -163,7 +175,7 @@ namespace AscentLanguage.Parser
 					}
 					_position++; // consume ':'
 
-					var falseExpression = ParseExpression();
+					var falseExpression = ParseExpression(variableMap);
 
 					return new TernaryExpression(condition, trueExpression, falseExpression);
 				}
@@ -173,7 +185,7 @@ namespace AscentLanguage.Parser
 			{
 				var definitionToken = _tokens[_position];
 				_position++;
-				var assignment = ParseExpression();
+				var assignment = ParseExpression(variableMap);
 				return new AssignmentExpression(definitionToken, assignment);
 			}
 
@@ -184,10 +196,39 @@ namespace AscentLanguage.Parser
 				return new VariableExpression(variableToken);
 			}
 
+			if(CurrentTokenIs(TokenType.FunctionArgument))
+			{
+				var token = _tokens[_position];
+				_position++;
+				return new NilExpression(token);
+			}
+
 			throw new FormatException("Unexpected token");
 		}
 
-		private Expression[] ParseFunctionArguments(bool scoped)
+		private string[] ParseDefinitionArguments()
+		{
+			var arguments = new List<string>();
+
+			int checks = 0;
+
+			// Parse comma-separated list of arguments
+			while (_position < _tokens.Length && !CurrentTokenIs(TokenType.RightParenthesis) && checks < 30)
+			{
+				checks++;
+				var argument = _tokens[_position++];
+				arguments.Add(new string(argument.tokenBuffer, 0, Utility.FindLengthToUse(argument.tokenBuffer)));
+
+				if (CurrentTokenIs(TokenType.Comma))
+				{
+					_position++; // consume ','
+				}
+			}
+
+			return arguments.ToArray();
+		}
+
+		private Expression[] ParseFunctionArguments(bool scoped, AscentVariableMap variableMap)
 		{
 			var arguments = new List<Expression>();
 
@@ -197,7 +238,7 @@ namespace AscentLanguage.Parser
 			while (_position < _tokens.Length && !CurrentTokenIs(scoped ? TokenType.RightScope : TokenType.RightParenthesis) && checks < 30)
 			{
 				checks++;
-				var argument = ParseExpression();
+				var argument = ParseExpression(variableMap);
 				arguments.Add(argument);
 
 				if (CurrentTokenIs(TokenType.Comma))

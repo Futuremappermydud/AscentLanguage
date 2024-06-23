@@ -52,7 +52,7 @@ namespace AscentLanguage
 				{
 					var parser = new AscentParser(lines[i].ToArray());
 
-					var parsedExpression = parser.ParseExpression();
+					var parsedExpression = parser.ParseExpression(variableMap);
 
 					if (debug)
 					{

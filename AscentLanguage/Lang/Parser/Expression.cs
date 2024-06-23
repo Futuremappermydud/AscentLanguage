@@ -3,6 +3,7 @@ using AscentLanguage.Tokenizer;
 using AscentLanguage.Util;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -117,7 +118,13 @@ namespace AscentLanguage.Parser
 
 		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
 		{
-			ascentVariableMap.Functions.Add(new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer)), Contents);
+			var name = new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer));
+			var definition = ascentVariableMap.Functions.FirstOrDefault(x => x.Key == name);
+			if (definition.Value != null)
+			{
+				definition.Value.contents = Contents;
+				definition.Value.defined = true;
+			}
 			return null;
 		}
 	}
@@ -170,17 +177,33 @@ namespace AscentLanguage.Parser
 		{
 			var name = new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer));
 			var function = AscentFunctions.GetFunction(name);
+			var args = Arguments.Select(x => x.Evaluate(ascentVariableMap) ?? 0f).ToArray();
 			if (function == null)
 			{
 				if (ascentVariableMap != null && ascentVariableMap.Functions.TryGetValue(name, out var expressions))
 				{
+					for (int i = 0; i < expressions.args.Count; i++)
+					{
+						if(args.Length > i)
+						{
+							ascentVariableMap.Variables[expressions.args[i]	] = args[i];
+						}
+					}
 					float result = 0f;
-					foreach (var expression in expressions)
+					foreach (var expression in expressions.contents)
 					{
 						var res = expression.Evaluate(ascentVariableMap);
 						if(res != null)
 						{
 							result = res.Value;
+						}
+					}
+
+					for (int i = 0; i < expressions.args.Count; i++)
+					{
+						if (args.Length > i)
+						{
+							ascentVariableMap.Variables.Remove(expressions.args[i]);
 						}
 					}
 					return result;
@@ -190,7 +213,7 @@ namespace AscentLanguage.Parser
 					throw new ArgumentException($"Function {name} does not exist!");
 				}
 			}
-			return function.Evaluate(Arguments.Select(x => x.Evaluate(ascentVariableMap) ?? 0f).ToArray());
+			return function.Evaluate(args);
 		}
 	}
 
@@ -239,6 +262,21 @@ namespace AscentLanguage.Parser
 			{
 				return value;
 			}
+			return null;
+		}
+	}
+
+	public class NilExpression : Expression
+	{
+		public Token Token { get; }
+
+		public NilExpression(Token token)
+		{
+			Token = token;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
 			return null;
 		}
 	}
