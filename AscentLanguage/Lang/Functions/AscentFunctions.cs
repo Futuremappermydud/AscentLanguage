@@ -27,10 +27,10 @@ namespace AscentLanguage.Functions
 			{ "bez_curve_y", new BezierCurveYFunction() },
 		};
 
-		public static Function GetFunction(string name)
+		public static Function? GetFunction(string name)
 		{
 			if(functions.ContainsKey(name)) return functions[name];
-			throw new ArgumentException($"Function {name} does not exist!");
+			return null;
 		}
 		public static bool SearchAnyFunctions(char c)
 		{
