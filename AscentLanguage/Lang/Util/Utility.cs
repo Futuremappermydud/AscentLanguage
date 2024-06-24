@@ -150,10 +150,30 @@ namespace AscentLanguage.Util
 				Console.WriteLine($"{GetIndent(indentLevel)}GrabVariable:");
 				Console.WriteLine($"{GetIndent(indentLevel + 4)}Variable: {new string(variableExpr.VariableToken.tokenBuffer)}");
 			}
+			else if (expr is IncrementVariableExpression variableIncrementExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}GrabVariable(Incremement):");
+				Console.WriteLine($"{GetIndent(indentLevel + 4)}Variable: {new string(variableIncrementExpr.VariableToken.tokenBuffer)}");
+			}
 			else if (expr is ReturnExpression returnExpr)
 			{
 				Console.WriteLine($"{GetIndent(indentLevel)}Return:");
 				PrintExpression(returnExpr.Expression, indentLevel + 2);
+			}
+			else if (expr is ForLoopExpression forExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}For Loop:");
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Definition:");
+				PrintExpression(forExpr.Defintion, indentLevel + 4);
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Condition:");
+				PrintExpression(forExpr.Condition, indentLevel + 4);
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Suffix:");
+				PrintExpression(forExpr.Suffix, indentLevel + 4);
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Expressions:");
+				for (int i = 0; i < forExpr.Contents.Length; i++)
+				{
+					PrintExpression(forExpr.Contents[i], indentLevel + 4);
+				}
 			}
 			else if (expr is NilExpression nilExpr)
 			{

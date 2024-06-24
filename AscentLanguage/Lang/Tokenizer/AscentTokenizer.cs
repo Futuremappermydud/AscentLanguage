@@ -9,6 +9,8 @@ namespace AscentLanguage.Tokenizer
 		private static readonly List<Tokenizer> tokenizers =
 		[
 			new QueryTokenizer(),
+			new WordMatchTokenizer("++", TokenType.Increment),
+			new WordMatchTokenizer("--", TokenType.Decrement),
 			new SingleCharTokenizer('+', TokenType.Addition, true),
 			new SubtractionTokenizer(),
 			new SingleCharTokenizer('*', TokenType.Multiplication, true),
@@ -28,6 +30,7 @@ namespace AscentLanguage.Tokenizer
 			new SingleCharTokenizer('{', TokenType.LeftScope, false),
 			new SingleCharTokenizer('}', TokenType.RightScope, false),
 			new WordMatchTokenizer("return", TokenType.Return),
+			new ForLoopTokenizer(),
 			new FunctionDefinitionTokenizer(),
 			new FunctionArgumentTokenizer(),
 			new FunctionTokenizer(),
@@ -64,6 +67,11 @@ namespace AscentLanguage.Tokenizer
 						{
 							var token = tokens.Last();
 							scope.Push(token.tokenBuffer);
+						}
+						if (tokenizer is ForLoopTokenizer forTokenizer)
+						{
+							var token = tokens.Last();
+							scope.Push(scope.Peek() + "_" + token.tokenBuffer);
 						}
 						if (tokenizer is SingleCharTokenizer singleCharTokenizer && singleCharTokenizer.Token == '}')
 						{

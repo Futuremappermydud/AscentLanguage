@@ -4,6 +4,8 @@
 	{
 		Query,
 		Constant,
+		Increment,
+		Decrement,
 		Addition,
 		Subtraction,
 		Multiplication,
@@ -28,6 +30,7 @@
 		LeftScope,
 		RightScope,
 		FunctionArgument,
+		ForLoop,
 		Return
 	}
 	public struct Token

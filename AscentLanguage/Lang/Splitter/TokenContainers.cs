@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AscentLanguage.Splitter
 {
-	public class TokenContainer(TokenContainer? parentContainer)
+	public abstract class TokenContainer(TokenContainer? parentContainer)
 	{
 		public TokenContainer? parentContainer { get; set; } = parentContainer;
 	}
@@ -17,7 +17,7 @@ namespace AscentLanguage.Splitter
 		public Token[] Expression { get; set; } = expression;
 	}
 
-	public class MultipleTokenContainer(TokenContainer? parentContainer) : TokenContainer(parentContainer)
+	public class MultipleTokenContainer(TokenContainer? parentContainer, bool split) : TokenContainer(parentContainer)
 	{
 		public List<TokenContainer> tokenContainers { get; set; } = new();
 	}

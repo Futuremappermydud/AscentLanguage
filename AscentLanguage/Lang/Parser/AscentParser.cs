@@ -201,6 +201,51 @@ namespace AscentLanguage.Parser
 				return new FunctionDefinitionExpression(functionToken, contents);
 			}
 
+			if (CurrentTokenIs(TokenType.ForLoop))
+			{
+				_position++; // consume 'for'
+				Expression definition;
+				Expression condition;
+				Expression suffix;
+				if (CurrentTokenIs(TokenType.LeftParenthesis))
+				{
+					_position++; // consume '('
+					definition = ParseExpression(variableMap);
+					if (CurrentTokenIs(TokenType.SemiColon))
+					{
+						_position++; // consume ';'
+					}
+					condition = ParseExpression(variableMap);
+					if (CurrentTokenIs(TokenType.SemiColon))
+					{
+						_position++; // consume ';'
+					}
+					suffix = ParseExpression(variableMap);
+					_position++; // consume ')'
+				}
+				else
+				{
+					throw new FormatException("Expected '(' after for loop. Missing definition, condition, and suffix!");
+				}
+
+				if (!CurrentTokenIs(TokenType.LeftScope))
+				{
+					throw new FormatException("Expected '{' after for loop");
+				}
+				_position++; // consume '{'
+
+				// Parse function contents
+				var contents = ParseFunctionArguments(true, variableMap);
+
+				if (!CurrentTokenIs(TokenType.RightScope))
+				{
+					throw new FormatException("Missing closing scope for loop");
+				}
+				_position++; // consume '}'
+
+				return new ForLoopExpression(definition, condition, suffix, contents);
+			}
+
 			if (NextTokenIs(TokenType.TernaryConditional))
 			{
 
@@ -233,9 +278,19 @@ namespace AscentLanguage.Parser
 
 			if (CurrentTokenIs(TokenType.Variable))
 			{
-				var variableToken = _currentTokens[_position];
-				_position++;
-				return new VariableExpression(variableToken);
+				if(NextTokenIs(TokenType.Increment))
+				{
+					var variableToken = _currentTokens[_position];
+					_position++;
+					_position++;
+					return new IncrementVariableExpression(variableToken);
+				}
+				else
+				{
+					var variableToken = _currentTokens[_position];
+					_position++;
+					return new VariableExpression(variableToken);
+				}
 			}
 
 			if (CurrentTokenIs(TokenType.FunctionArgument))

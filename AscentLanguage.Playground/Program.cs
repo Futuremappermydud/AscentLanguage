@@ -7,15 +7,9 @@ namespace AscentLanguage.Playground
 		static void Main(string[] args)
 		{
 			string functionExpression = @"
-let a = 5;
-function hello(c) {
-	function hello2(f1, f2) {
-		return f1 + f2;
-	}
-	let b = hello2(3, 2);
-	return c + 10 + b;
+for (let i = 0; i < 10; i++) {
+	debug(i);
 }
-hello(a);
 ";
 			try
 			{

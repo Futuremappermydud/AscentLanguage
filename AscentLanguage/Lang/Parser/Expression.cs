@@ -129,6 +129,37 @@ namespace AscentLanguage.Parser
 		}
 	}
 
+	public class ForLoopExpression : Expression
+	{
+		public Expression Defintion { get; }
+		public Expression Condition { get; }
+		public Expression Suffix { get; }
+		public Expression[] Contents { get; }
+
+		public ForLoopExpression(Expression defintion, Expression condition, Expression suffix, Expression[] contents)
+		{
+			Defintion = defintion;
+			Condition = condition;
+			Suffix = suffix;
+			Contents = contents;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			Defintion.Evaluate(ascentVariableMap);
+			while (Condition.Evaluate(ascentVariableMap) > 0.5f)
+			{
+				foreach (var expression in Contents)
+				{
+					var map = ascentVariableMap?.Clone();
+					expression.Evaluate(map);
+				}
+				Suffix.Evaluate(ascentVariableMap);
+			}
+			return null;
+		}
+	}
+
 	public class TernaryExpression : Expression
 	{
 		public Expression Condition { get; set; }
@@ -261,6 +292,30 @@ namespace AscentLanguage.Parser
 			if (ascentVariableMap.Variables.TryGetValue(VariableToken.tokenBuffer, out float value))
 			{
 				return value;
+			}
+			return null;
+		}
+	}
+
+	public class IncrementVariableExpression : Expression
+	{
+		public Token VariableToken { get; }
+
+		public IncrementVariableExpression(Token variableToken)
+		{
+			VariableToken = variableToken;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			if (ascentVariableMap == null)
+			{
+				throw new InvalidOperationException("Variable map cannot be null");
+			}
+			if (ascentVariableMap.Variables.TryGetValue(VariableToken.tokenBuffer, out float value))
+			{
+				ascentVariableMap.Variables[VariableToken.tokenBuffer] = value + 1;
+				return ascentVariableMap.Variables[VariableToken.tokenBuffer];
 			}
 			return null;
 		}

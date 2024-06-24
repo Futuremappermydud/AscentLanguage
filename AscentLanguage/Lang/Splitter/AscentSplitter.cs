@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,10 +12,11 @@ namespace AscentLanguage.Splitter
 	{
 		public static TokenContainer SplitTokens(List<Token> tokens)
 		{
-			var rootContainer = new MultipleTokenContainer(null);
+			var rootContainer = new MultipleTokenContainer(null, true);
 			int _position = 0;
 			List<Token> buffer = new List<Token>();
 			MultipleTokenContainer? currentScope = rootContainer;
+			bool split = true;
 			while (_position < tokens.Count)
 			{
 				var token = tokens[_position];
@@ -42,9 +44,23 @@ namespace AscentLanguage.Splitter
 				}
 				if (token.type == TokenType.FunctionDefinition)
 				{
-					var newScope = new MultipleTokenContainer(currentScope);
+					var newScope = new MultipleTokenContainer(currentScope, true);
 					currentScope?.tokenContainers.Add(newScope);
 					currentScope = newScope;
+				}
+				if (token.type == TokenType.ForLoop)
+				{
+					var newScope = new MultipleTokenContainer(currentScope, false);
+					currentScope?.tokenContainers.Add(newScope);
+					currentScope = newScope;
+				}
+				if(token.type == TokenType.LeftParenthesis)
+				{
+					split = false;
+				}
+				if (token.type == TokenType.RightParenthesis)
+				{
+					split = true;
 				}
 				if (token.type != TokenType.SemiColon)
 				{
@@ -53,8 +69,15 @@ namespace AscentLanguage.Splitter
 				}
 				else
 				{
-					currentScope?.tokenContainers.Add(new SingleTokenContainer(currentScope, buffer.ToArray()));
-					buffer.Clear();
+					if (split)
+					{
+						currentScope?.tokenContainers.Add(new SingleTokenContainer(currentScope, buffer.ToArray()));
+						buffer.Clear();
+					}
+					else
+					{
+						buffer.Add(token);
+					}
 				}
 				_position++;
 			}

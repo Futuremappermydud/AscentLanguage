@@ -297,6 +297,19 @@ namespace AscentLanguage.Tokenizer
 			return functionTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, ref functionDefs, scope, existingTokens);
 		}
 	}
+	public class ForLoopTokenizer : Tokenizer
+	{
+		private static readonly Tokenizer forTokenizer = new WordMatchTokenizer("for", TokenType.ForLoop);
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<FunctionDefinition> functionDefs, string scope)
+		{
+			return forTokenizer.GetToken(peekChar, br, stream, ref variableDefs, ref functionDefs, scope);
+		}
+
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<FunctionDefinition> functionDefs, string scope, List<Token>? existingTokens = null)
+		{
+			return forTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, ref functionDefs, scope, existingTokens);
+		}
+	}
 
 	public class FunctionArgumentTokenizer : Tokenizer
 	{
