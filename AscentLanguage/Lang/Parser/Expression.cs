@@ -90,7 +90,7 @@ namespace AscentLanguage.Parser
 			}
 			else if (Token.type == TokenType.Query)
 			{
-				var buffer = new string(Token.tokenBuffer, 0, Utility.FindLengthToUse(Token.tokenBuffer));
+				var buffer = Token.tokenBuffer;
 				if (ascentVariableMap != null && ascentVariableMap.QueryVariables.TryGetValue(buffer, out float value))
 				{
 					return value;
@@ -118,7 +118,7 @@ namespace AscentLanguage.Parser
 
 		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
 		{
-			var name = new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer));
+			var name = FunctionToken.tokenBuffer;
 			var definition = ascentVariableMap.Functions.FirstOrDefault(x => x.Key == name);
 			if (definition.Value != null)
 			{
@@ -175,7 +175,7 @@ namespace AscentLanguage.Parser
 
 		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
 		{
-			var name = new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer));
+			var name = FunctionToken.tokenBuffer;
 			var function = AscentFunctions.GetFunction(name);
 			var args = Arguments.Select(x => x.Evaluate(ascentVariableMap) ?? 0f).ToArray();
 			if (function == null)
@@ -238,7 +238,7 @@ namespace AscentLanguage.Parser
 			{
 				throw new InvalidOperationException("Assignment Expression cannot be null");
 			}
-			ascentVariableMap.Variables[new string(VariableToken.tokenBuffer, 0, Utility.FindLengthToUse(VariableToken.tokenBuffer))] = Assignment?.Evaluate(ascentVariableMap) ?? 0f;
+			ascentVariableMap.Variables[VariableToken.tokenBuffer] = Assignment?.Evaluate(ascentVariableMap) ?? 0f;
 			return null;
 		}
 	}
@@ -258,7 +258,7 @@ namespace AscentLanguage.Parser
 			{
 				throw new InvalidOperationException("Variable map cannot be null");
 			}
-			if (ascentVariableMap.Variables.TryGetValue(new string(VariableToken.tokenBuffer, 0, Utility.FindLengthToUse(VariableToken.tokenBuffer)), out float value))
+			if (ascentVariableMap.Variables.TryGetValue(VariableToken.tokenBuffer, out float value))
 			{
 				return value;
 			}

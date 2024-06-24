@@ -134,7 +134,7 @@ namespace AscentLanguage.Parser
 				{
 					_position++; // consume '('
 					var arguments = ParseDefinitionArguments();
-					var name = new string(functionToken.tokenBuffer, 0, Utility.FindLengthToUse(functionToken.tokenBuffer));
+					var name = functionToken.tokenBuffer;
 					var definition = new FunctionDefinition(name);
 					variableMap.Functions.Add(name, definition);
 					definition.args = arguments.ToList();
@@ -224,7 +224,7 @@ namespace AscentLanguage.Parser
 			{
 				checks++;
 				var argument = _tokens[_position++];
-				arguments.Add(new string(argument.tokenBuffer, 0, Utility.FindLengthToUse(argument.tokenBuffer)));
+				arguments.Add(argument.tokenBuffer);
 
 				if (CurrentTokenIs(TokenType.Comma))
 				{

@@ -14,9 +14,9 @@ namespace AscentLanguage.Util
 			return strings.Any(x => x.StartsWith(c));
 		}
 
-		public static float ConvertToFloat(char[] value)
+		public static float ConvertToFloat(string value)
 		{
-			var valueLength = FindLengthToUse(value);
+			var valueLength = value.Length;
 
 			if (value == null || valueLength == 0)
 			{

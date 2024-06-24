@@ -63,7 +63,7 @@ namespace AscentLanguage.Tokenizer
 						if (tokenizer is FunctionDefinitionTokenizer functionDefinitionTokenizer)
 						{
 							var token = tokens.Last();
-							scope = new string(token.tokenBuffer, 0, Utility.FindLengthToUse(token.tokenBuffer));
+							scope = token.tokenBuffer;
 						}
 						if (tokenizer is SingleCharTokenizer singleCharTokenizer && singleCharTokenizer.Token == '}')
 						{
