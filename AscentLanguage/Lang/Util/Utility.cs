@@ -155,6 +155,11 @@ namespace AscentLanguage.Util
 				Console.WriteLine($"{GetIndent(indentLevel)}GrabVariable(Incremement):");
 				Console.WriteLine($"{GetIndent(indentLevel + 4)}Variable: {new string(variableIncrementExpr.VariableToken.tokenBuffer)}");
 			}
+			else if (expr is DecrementVariableExpression variableDecrementExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}GrabVariable(Decrement):");
+				Console.WriteLine($"{GetIndent(indentLevel + 4)}Variable: {new string(variableDecrementExpr.VariableToken.tokenBuffer)}");
+			}
 			else if (expr is ReturnExpression returnExpr)
 			{
 				Console.WriteLine($"{GetIndent(indentLevel)}Return:");

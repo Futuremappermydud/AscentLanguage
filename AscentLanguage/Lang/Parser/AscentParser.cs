@@ -320,9 +320,19 @@ namespace AscentLanguage.Parser
 				}
 				else
 				{
-					var variableToken = _currentTokens[_position];
-					_position++;
-					return new VariableExpression(variableToken);
+					if (NextTokenIs(TokenType.Decrement))
+					{
+						var variableToken = _currentTokens[_position];
+						_position++;
+						_position++;
+						return new DecrementVariableExpression(variableToken);
+					}
+					else
+					{
+						var variableToken = _currentTokens[_position];
+						_position++;
+						return new VariableExpression(variableToken);
+					}
 				}
 			}
 

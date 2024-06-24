@@ -350,6 +350,30 @@ namespace AscentLanguage.Parser
 		}
 	}
 
+	public class DecrementVariableExpression : Expression
+	{
+		public Token VariableToken { get; }
+
+		public DecrementVariableExpression(Token variableToken)
+		{
+			VariableToken = variableToken;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			if (ascentVariableMap == null)
+			{
+				throw new InvalidOperationException("Variable map cannot be null");
+			}
+			if (ascentVariableMap.Variables.TryGetValue(VariableToken.tokenBuffer, out float value))
+			{
+				ascentVariableMap.Variables[VariableToken.tokenBuffer] = value - 1;
+				return ascentVariableMap.Variables[VariableToken.tokenBuffer];
+			}
+			return null;
+		}
+	}
+
 	public class NilExpression : Expression
 	{
 		public Token Token { get; }

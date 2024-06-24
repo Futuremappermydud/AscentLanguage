@@ -7,9 +7,9 @@ namespace AscentLanguage.Playground
 		static void Main(string[] args)
 		{
 			string functionExpression = @"
-let g = 1;
-while(g < 1024) {
-	g = g * 2;
+let g = 10;
+while(g > 0) {
+	g--;
 	debug(g);
 }
 return g;
