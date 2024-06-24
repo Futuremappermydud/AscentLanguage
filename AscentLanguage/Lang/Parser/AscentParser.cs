@@ -246,6 +246,39 @@ namespace AscentLanguage.Parser
 				return new ForLoopExpression(definition, condition, suffix, contents);
 			}
 
+			if (CurrentTokenIs(TokenType.WhileLoop))
+			{
+				_position++; // consume 'while'
+				Expression condition;
+				if (CurrentTokenIs(TokenType.LeftParenthesis))
+				{
+					_position++; // consume '('
+					condition = ParseExpression(variableMap);
+					_position++; // consume ')'
+				}
+				else
+				{
+					throw new FormatException("Expected '(' after while loop. Missing condition!");
+				}
+
+				if (!CurrentTokenIs(TokenType.LeftScope))
+				{
+					throw new FormatException("Expected '{' after while loop");
+				}
+				_position++; // consume '{'
+
+				// Parse function contents
+				var contents = ParseFunctionArguments(true, variableMap);
+
+				if (!CurrentTokenIs(TokenType.RightScope))
+				{
+					throw new FormatException("Missing closing scope for loop");
+				}
+				_position++; // consume '}'
+
+				return new WhileLoopExpression(condition, contents);
+			}
+
 			if (NextTokenIs(TokenType.TernaryConditional))
 			{
 

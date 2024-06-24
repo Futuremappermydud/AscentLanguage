@@ -31,6 +31,7 @@ namespace AscentLanguage.Tokenizer
 			new SingleCharTokenizer('}', TokenType.RightScope, false),
 			new WordMatchTokenizer("return", TokenType.Return),
 			new ForLoopTokenizer(),
+			new WhileLoopTokenizer(),
 			new FunctionDefinitionTokenizer(),
 			new FunctionArgumentTokenizer(),
 			new FunctionTokenizer(),
@@ -63,12 +64,17 @@ namespace AscentLanguage.Tokenizer
 					{
 						stream.Position = position;
 						tokens.Add(tokenizer.GetToken(peek, br, stream, ref variableDefinitions, ref functionDefinitions, scope.Peek()));
-						if (tokenizer is FunctionDefinitionTokenizer functionDefinitionTokenizer)
+						if (tokenizer is FunctionDefinitionTokenizer)
 						{
 							var token = tokens.Last();
 							scope.Push(token.tokenBuffer);
 						}
-						if (tokenizer is ForLoopTokenizer forTokenizer)
+						if (tokenizer is ForLoopTokenizer)
+						{
+							var token = tokens.Last();
+							scope.Push(scope.Peek() + "_" + token.tokenBuffer);
+						}
+						if (tokenizer is WhileLoopTokenizer)
 						{
 							var token = tokens.Last();
 							scope.Push(scope.Peek() + "_" + token.tokenBuffer);

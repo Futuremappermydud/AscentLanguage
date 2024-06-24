@@ -175,6 +175,17 @@ namespace AscentLanguage.Util
 					PrintExpression(forExpr.Contents[i], indentLevel + 4);
 				}
 			}
+			else if (expr is WhileLoopExpression whileExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}While Loop:");
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Condition:");
+				PrintExpression(whileExpr.Condition, indentLevel + 4);
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Expressions:");
+				for (int i = 0; i < whileExpr.Contents.Length; i++)
+				{
+					PrintExpression(whileExpr.Contents[i], indentLevel + 4);
+				}
+			}
 			else if (expr is NilExpression nilExpr)
 			{
 			}

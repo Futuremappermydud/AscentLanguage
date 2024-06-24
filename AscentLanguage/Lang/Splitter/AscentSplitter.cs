@@ -12,7 +12,7 @@ namespace AscentLanguage.Splitter
 	{
 		public static TokenContainer SplitTokens(List<Token> tokens)
 		{
-			var rootContainer = new MultipleTokenContainer(null, true);
+			var rootContainer = new MultipleTokenContainer(null);
 			int _position = 0;
 			List<Token> buffer = new List<Token>();
 			MultipleTokenContainer? currentScope = rootContainer;
@@ -44,17 +44,23 @@ namespace AscentLanguage.Splitter
 				}
 				if (token.type == TokenType.FunctionDefinition)
 				{
-					var newScope = new MultipleTokenContainer(currentScope, true);
+					var newScope = new MultipleTokenContainer(currentScope);
 					currentScope?.tokenContainers.Add(newScope);
 					currentScope = newScope;
 				}
 				if (token.type == TokenType.ForLoop)
 				{
-					var newScope = new MultipleTokenContainer(currentScope, false);
+					var newScope = new MultipleTokenContainer(currentScope);
 					currentScope?.tokenContainers.Add(newScope);
 					currentScope = newScope;
 				}
-				if(token.type == TokenType.LeftParenthesis)
+				if (token.type == TokenType.WhileLoop)
+				{
+					var newScope = new MultipleTokenContainer(currentScope);
+					currentScope?.tokenContainers.Add(newScope);
+					currentScope = newScope;
+				}
+				if (token.type == TokenType.LeftParenthesis)
 				{
 					split = false;
 				}

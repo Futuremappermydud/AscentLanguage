@@ -297,6 +297,7 @@ namespace AscentLanguage.Tokenizer
 			return functionTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, ref functionDefs, scope, existingTokens);
 		}
 	}
+
 	public class ForLoopTokenizer : Tokenizer
 	{
 		private static readonly Tokenizer forTokenizer = new WordMatchTokenizer("for", TokenType.ForLoop);
@@ -308,6 +309,20 @@ namespace AscentLanguage.Tokenizer
 		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<FunctionDefinition> functionDefs, string scope, List<Token>? existingTokens = null)
 		{
 			return forTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, ref functionDefs, scope, existingTokens);
+		}
+	}
+
+	public class WhileLoopTokenizer : Tokenizer
+	{
+		private static readonly Tokenizer whileTokenizer = new WordMatchTokenizer("while", TokenType.WhileLoop);
+		public override Token GetToken(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<FunctionDefinition> functionDefs, string scope)
+		{
+			return whileTokenizer.GetToken(peekChar, br, stream, ref variableDefs, ref functionDefs, scope);
+		}
+
+		public override bool IsMatch(int peekChar, BinaryReader br, MemoryStream stream, ref List<string> variableDefs, ref List<FunctionDefinition> functionDefs, string scope, List<Token>? existingTokens = null)
+		{
+			return whileTokenizer.IsMatch(peekChar, br, stream, ref variableDefs, ref functionDefs, scope, existingTokens);
 		}
 	}
 

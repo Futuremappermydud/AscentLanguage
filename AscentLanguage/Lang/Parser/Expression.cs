@@ -160,6 +160,35 @@ namespace AscentLanguage.Parser
 		}
 	}
 
+	public class WhileLoopExpression : Expression
+	{
+		public Expression Condition { get; }
+		public Expression[] Contents { get; }
+
+		public WhileLoopExpression(Expression condition, Expression[] contents)
+		{
+			Condition = condition;
+			Contents = contents;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			while (Condition.Evaluate(ascentVariableMap) > 0.5f)
+			{
+				foreach (var expression in Contents)
+				{
+					var map = ascentVariableMap?.Clone();
+					expression.Evaluate(map);
+					foreach (var item in ascentVariableMap.Variables.Select(x => x.Key))
+					{
+						ascentVariableMap.Variables[item] = map.Variables[item];
+					}
+				}
+			}
+			return null;
+		}
+	}
+
 	public class TernaryExpression : Expression
 	{
 		public Expression Condition { get; set; }

@@ -17,7 +17,7 @@ namespace AscentLanguage.Splitter
 		public Token[] Expression { get; set; } = expression;
 	}
 
-	public class MultipleTokenContainer(TokenContainer? parentContainer, bool split) : TokenContainer(parentContainer)
+	public class MultipleTokenContainer(TokenContainer? parentContainer) : TokenContainer(parentContainer)
 	{
 		public List<TokenContainer> tokenContainers { get; set; } = new();
 	}

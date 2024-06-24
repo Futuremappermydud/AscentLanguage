@@ -7,9 +7,12 @@ namespace AscentLanguage.Playground
 		static void Main(string[] args)
 		{
 			string functionExpression = @"
-for (let i = 0; i < 10; i++) {
-	debug(i);
+let g = 1;
+while(g < 1024) {
+	g = g * 2;
+	debug(g);
 }
+return g;
 ";
 			try
 			{

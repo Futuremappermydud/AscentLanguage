@@ -31,6 +31,7 @@
 		RightScope,
 		FunctionArgument,
 		ForLoop,
+		WhileLoop,
 		Return
 	}
 	public struct Token
