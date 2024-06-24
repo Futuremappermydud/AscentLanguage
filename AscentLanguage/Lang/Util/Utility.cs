@@ -1,4 +1,5 @@
 ﻿using AscentLanguage.Parser;
+using AscentLanguage.Splitter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -154,6 +155,9 @@ namespace AscentLanguage.Util
 				Console.WriteLine($"{GetIndent(indentLevel)}Return:");
 				PrintExpression(returnExpr.Expression, indentLevel + 2);
 			}
+			else if (expr is NilExpression nilExpr)
+			{
+			}
 			else
 			{
 				throw new InvalidOperationException("Invalid expression type");
@@ -163,6 +167,32 @@ namespace AscentLanguage.Util
 		private static string GetIndent(int indentLevel)
 		{
 			return new string(' ', indentLevel * 2);
+		}
+
+		public static void PrintTokenContainer(TokenContainer container, int indentLevel = 0)
+		{
+			if (container is SingleTokenContainer single)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}SingleTokenContainer:");
+				Console.Write($"{GetIndent(indentLevel + 2)}");
+				for (int i = 0; i < single.Expression.Length; i++)
+				{
+					Console.Write($"{single.Expression[i].type}, ");
+				}
+				Console.Write("\n");
+			}
+			else if (container is MultipleTokenContainer multiple)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}MultipleTokenContainer:");
+				for (int i = 0; i < multiple.tokenContainers.Count; i++)
+				{
+					PrintTokenContainer(multiple.tokenContainers[i], indentLevel + 2);
+				}
+			}
+			else
+			{
+				throw new InvalidOperationException("Invalid container type");
+			}
 		}
 	}
 }

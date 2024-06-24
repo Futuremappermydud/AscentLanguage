@@ -7,11 +7,16 @@ namespace AscentLanguage.Playground
 		static void Main(string[] args)
 		{
 			string functionExpression = @"
-function test(a, depth) {
-    return depth < 10 ? test(a * 2, depth + 1) : a * 2
-};
-
-return test(1, 0)";
+let a = 5;
+function hello(c) {
+	function hello2(f1, f2) {
+		return f1 + f2;
+	}
+	let b = hello2(3, 2);
+	return c + 10 + b;
+}
+hello(a);
+";
 			try
 			{
 

@@ -1,17 +1,17 @@
 ﻿using AscentLanguage.Tokenizer;
 using AscentLanguage.Util;
+using AscentLanguage.Splitter;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AscentLanguage.Parser
 {
 	public class AscentParser
 	{
-		private readonly Token[] _tokens;
+		private TokenContainer _currentContainer;
 		private int _position;
+		private List<TokenContainer> _containerStack;
+		private Token[] _currentTokens;
 
 		// Define operator precedence levels
 		private static readonly Dictionary<TokenType, int> Precedence = new Dictionary<TokenType, int>
@@ -27,46 +27,88 @@ namespace AscentLanguage.Parser
 			{ TokenType.Subtraction, 2 },
 		};
 
-		public AscentParser(Token[] tokens)
+		public AscentParser(TokenContainer rootContainer)
 		{
-			_tokens = tokens;
+			_currentContainer = rootContainer;
 			_position = 0;
+			_containerStack = new List<TokenContainer> { _currentContainer };
+			_currentTokens = Array.Empty<Token>();
+			LoadNextContainer();
+		}
+
+		private void LoadNextContainer()
+		{
+			while (_position >= _currentTokens.Length && _containerStack.Count > 0)
+			{
+				var currentContainer = _containerStack[0];
+				_containerStack.RemoveAt(0);
+
+				if (currentContainer is SingleTokenContainer single)
+				{
+					_currentTokens = single.Expression;
+					_position = 0;
+				}
+				else if (currentContainer is MultipleTokenContainer multiple)
+				{
+					Console.WriteLine($"Loading multiple token container with {multiple.tokenContainers.Count} containers");
+					_containerStack.InsertRange(0, multiple.tokenContainers);
+				}
+			}
+			for (int i = 0; i < _currentTokens.Length; i++)
+			{
+				Console.Write($"{_currentTokens[i].type}, ");
+			}
+			Console.WriteLine("");
+		}
+
+		public List<Expression> Parse(AscentVariableMap variableMap)
+		{
+			var expressions = new List<Expression>();
+
+			while (_containerStack.Count > 0)
+			{
+				LoadNextContainer();
+
+				while (_position < _currentTokens.Length)
+				{
+					var expression = ParseExpression(variableMap);
+					if (expression != null)
+					{
+						expressions.Add(expression);
+					}
+					_position++;
+				}
+			}
+
+			return expressions;
 		}
 
 		public Expression ParseExpression(AscentVariableMap variableMap)
 		{
-			return ParseBinary(Precedence[TokenType.Addition], variableMap);
+			return ParseBinary(0, variableMap);
 		}
 
 		private Expression ParseBinary(int precedence, AscentVariableMap variableMap)
 		{
 			var left = ParsePrimary(variableMap);
 
-			while (_position < _tokens.Length && Precedence.ContainsKey(_tokens[_position].type) && Precedence[_tokens[_position].type] >= precedence)
+			while (true)
 			{
-				var operatorToken = _tokens[_position++];
-
-				if (operatorToken.type == TokenType.TernaryConditional)
+				if (_position >= _currentTokens.Length || !Precedence.ContainsKey(_currentTokens[_position].type))
 				{
-					// Ternary operator found, parse ternary expression
-					var trueBranch = ParseExpression(variableMap);
-
-					if (!CurrentTokenIs(TokenType.Colon))
-					{
-						throw new FormatException("Expected ':' in ternary expression");
-					}
-					_position++; // consume ':'
-
-					var falseBranch = ParseExpression(variableMap);
-
-					left = new TernaryExpression(left, trueBranch, falseBranch);
+					break;
 				}
-				else
+
+				var operatorToken = _currentTokens[_position];
+				var tokenPrecedence = Precedence[operatorToken.type];
+				if (tokenPrecedence < precedence)
 				{
-					// Normal binary operation
-					var right = ParseBinary(Precedence[operatorToken.type] + 1, variableMap);
-					left = new BinaryExpression(left, operatorToken, right);
+					break;
 				}
+
+				_position++;
+				var right = ParseBinary(tokenPrecedence + 1, variableMap);
+				left = new BinaryExpression(left, operatorToken, right);
 			}
 
 			return left;
@@ -76,7 +118,7 @@ namespace AscentLanguage.Parser
 		{
 			if (CurrentTokenIs(TokenType.Constant) || CurrentTokenIs(TokenType.Query))
 			{
-				var numberToken = _tokens[_position++];
+				var numberToken = _currentTokens[_position++];
 				return new NumberExpression(numberToken);
 			}
 
@@ -106,7 +148,7 @@ namespace AscentLanguage.Parser
 
 			if (CurrentTokenIs(TokenType.Function))
 			{
-				var functionToken = _tokens[_position++]; // Get the function token
+				var functionToken = _currentTokens[_position++]; // Get the function token
 
 				if (!CurrentTokenIs(TokenType.LeftParenthesis))
 				{
@@ -128,9 +170,9 @@ namespace AscentLanguage.Parser
 
 			if (CurrentTokenIs(TokenType.FunctionDefinition))
 			{
-				var functionToken = _tokens[_position++]; // Get the function token
+				var functionToken = _currentTokens[_position++]; // Get the function token
 
-				if(CurrentTokenIs(TokenType.LeftParenthesis))
+				if (CurrentTokenIs(TokenType.LeftParenthesis))
 				{
 					_position++; // consume '('
 					var arguments = ParseDefinitionArguments();
@@ -181,9 +223,9 @@ namespace AscentLanguage.Parser
 				}
 			}
 
-			if(CurrentTokenIs(TokenType.Definition) || CurrentTokenIs(TokenType.Assignment))
+			if (CurrentTokenIs(TokenType.Definition) || CurrentTokenIs(TokenType.Assignment))
 			{
-				var definitionToken = _tokens[_position];
+				var definitionToken = _currentTokens[_position];
 				_position++;
 				var assignment = ParseExpression(variableMap);
 				return new AssignmentExpression(definitionToken, assignment);
@@ -191,26 +233,26 @@ namespace AscentLanguage.Parser
 
 			if (CurrentTokenIs(TokenType.Variable))
 			{
-				var variableToken = _tokens[_position];
+				var variableToken = _currentTokens[_position];
 				_position++;
 				return new VariableExpression(variableToken);
 			}
 
-			if(CurrentTokenIs(TokenType.FunctionArgument))
+			if (CurrentTokenIs(TokenType.FunctionArgument))
 			{
-				var token = _tokens[_position];
+				var token = _currentTokens[_position];
 				_position++;
 				return new NilExpression(token);
 			}
 
-			if(CurrentTokenIs(TokenType.Return))
+			if (CurrentTokenIs(TokenType.Return))
 			{
 				_position++;
 				var ret = ParseExpression(variableMap);
 				return new ReturnExpression(ret);
 			}
 
-			throw new FormatException("Unexpected token");
+			throw new FormatException($"Unexpected token {_currentTokens[_position].type}");
 		}
 
 		private string[] ParseDefinitionArguments()
@@ -220,10 +262,10 @@ namespace AscentLanguage.Parser
 			int checks = 0;
 
 			// Parse comma-separated list of arguments
-			while (_position < _tokens.Length && !CurrentTokenIs(TokenType.RightParenthesis) && checks < 30)
+			while (_position < _currentTokens.Length && !CurrentTokenIs(TokenType.RightParenthesis) && checks < 30)
 			{
 				checks++;
-				var argument = _tokens[_position++];
+				var argument = _currentTokens[_position++];
 				arguments.Add(argument.tokenBuffer);
 
 				if (CurrentTokenIs(TokenType.Comma))
@@ -242,8 +284,10 @@ namespace AscentLanguage.Parser
 			int checks = 0;
 
 			// Parse comma-separated list of arguments
-			while (_position < _tokens.Length && !CurrentTokenIs(scoped ? TokenType.RightScope : TokenType.RightParenthesis) && checks < 30)
+			while (!CurrentTokenIs(scoped ? TokenType.RightScope : TokenType.RightParenthesis) && checks < 30)
 			{
+				LoadNextContainer();
+				if (CurrentTokenIs(scoped ? TokenType.RightScope : TokenType.RightParenthesis)) break;
 				checks++;
 				var argument = ParseExpression(variableMap);
 				arguments.Add(argument);
@@ -259,12 +303,12 @@ namespace AscentLanguage.Parser
 
 		private bool CurrentTokenIs(TokenType type)
 		{
-			return _position < _tokens.Length && _tokens[_position].type == type;
+			return _position < _currentTokens.Length && _currentTokens[_position].type == type;
 		}
 
 		private bool NextTokenIs(TokenType type)
 		{
-			return _position + 1 < _tokens.Length && _tokens[_position+1].type == type;
+			return _position + 1 < _currentTokens.Length && _currentTokens[_position + 1].type == type;
 		}
 	}
 }

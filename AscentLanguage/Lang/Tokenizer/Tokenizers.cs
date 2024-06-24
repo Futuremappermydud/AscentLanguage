@@ -321,6 +321,7 @@ namespace AscentLanguage.Tokenizer
 			{
 				back++;
 			}
+			if(existingTokens == null || existingTokens.Count < back + 1) return false;
 			var def = existingTokens[existingTokens.Count - back - 1];
 			if (existingTokens[existingTokens.Count - back - 1].type == TokenType.FunctionDefinition)
 			{

@@ -1,4 +1,5 @@
 ﻿using AscentLanguage.Parser;
+using AscentLanguage.Splitter;
 using AscentLanguage.Tokenizer;
 using AscentLanguage.Util;
 
@@ -60,18 +61,24 @@ namespace AscentLanguage
 					return acc;
 				}).Where(x=>x.Count > 0).ToList();
 
-				for (int i = 0; i < lines.Count; i++)
+				var containers = AscentSplitter.SplitTokens(tokens.ToList());
+				Utility.PrintTokenContainer(containers);
+				Console.WriteLine("\n");
+
+				var parser = new AscentParser(containers as MultipleTokenContainer);
+
+				var parsedExpressions = parser.Parse(variableMap);
+
+				Console.WriteLine($"Parsed {parsedExpressions.Count} expressions");
+
+				for (int i = 0; i < parsedExpressions.Count; i++)
 				{
-					var parser = new AscentParser(lines[i].ToArray());
-
-					var parsedExpression = parser.ParseExpression(variableMap);
-
 					if (debug)
 					{
-						Utility.PrintExpression(parsedExpression);
+						Utility.PrintExpression(parsedExpressions[i]);
 					}
 
-					toEvaluate.Add(parsedExpression);
+					toEvaluate.Add(parsedExpressions[i]);
 				}
 				if (cache)
 					cachedExpressions[expression] = new CacheData(toEvaluate.ToArray(), variableMap.Functions);
@@ -80,7 +87,8 @@ namespace AscentLanguage
 			foreach (var evaluate in toEvaluate)
 			{
 				var eval = evaluate.Evaluate(variableMap);
-				if(eval.HasValue) result = eval.Value;
+				Console.WriteLine($"Evaluated: {eval ?? -1f}");
+				if (eval.HasValue) result = eval.Value;
 			}
 			return result;
 		}
