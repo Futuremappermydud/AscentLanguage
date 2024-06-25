@@ -52,20 +52,37 @@ Basic performance metrics are laid out [here!](./PERFORMANCE.md)
 	10. Exp
 	11. Frac
 	12. Lerp
-	15. ... And more [Here](https://github.com/Futuremappermydud/AscentLanguage/blob/main/AscentLanguage/Lang/Functions/AscentFunctions.cs#L12)
+	13. Debug (prints all given arguments to console)
+	14. ... And more [Here](https://github.com/Futuremappermydud/AscentLanguage/blob/main/AscentLanguage/Lang/Functions/AscentFunctions.cs#L12)
 - Function Definitions
-	- Function definitions are written by you! They do have a specific syntax however... Inside of a function definition, lines must be separated by a comma instead of a semi-colon. And a semi-colon must be placed at the end of a function definition.
+	- Function definitions are written by you! They follow very similar syntax to javascript and also support nesting!
 	- Example:
 ```
 function test(add1, add2) {
-    return add1 + add2
-};
+	function k(a) {
+	    return a * 2;
+	}
+	let result = k(add1) + k(add2);
+    return result;
+}
+return test(2, 2);
+```
+- Loops
+	- Currently there are two loops implemented, for loops and while loops. These also follow very similar syntax to other languages.
+```
+let g = 10;
+while(g > 0) {
+	g--;
+	debug(g);
+}
+return g;
+```
 
-function k(a) {
-    return a * 2
-};
-
-return k(test(test(2, 1), 2))
+```
+for(let i = 0; i < 10; i++)
+{
+	debug(i);
+}
 ```
 # Roadmap
 - [x] Performance metrics.
@@ -73,7 +90,8 @@ return k(test(test(2, 1), 2))
 - [ ] API to add functions from implementing code.
 - [ ] Translate to C++ as an additional language.
 - [x] Support creating functions from within Ascent code.
-- [ ] Rewrite parser to be more modular/legible.
+- [x] Rewrite parser to be more modular/legible.
+	- [ ] Further clean up to make the parser more pretty.
 - [ ] Refactor to allow strings, booleans, etc.
 - [ ] Translate to C++ as an additional language.
 - [ ] Add Ascent code examples.
