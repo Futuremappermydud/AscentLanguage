@@ -25,6 +25,7 @@ namespace AscentLanguage.Functions
 			{ "lerp", new LerpFunction() },
 			{ "bez_curve_x", new BezierCurveXFunction() },
 			{ "bez_curve_y", new BezierCurveYFunction() },
+			{ "debug", new DebugFunction() },
 		};
 
 		public static Function? GetFunction(string name)
@@ -184,6 +185,21 @@ namespace AscentLanguage.Functions
 			{
 				if (input.Length < 5) return 0f;
 				return BezierCurveY(input[0], input[1], input[2], input[3], input[4]);
+			}
+		}
+
+		public class DebugFunction : Function
+		{
+			public override float Evaluate(float[] input)
+			{
+				if (input.Length < 1) return 0f;
+				Console.ForegroundColor = ConsoleColor.Yellow;
+				Console.Write("DEBUG ");
+				Console.ForegroundColor = ConsoleColor.White;
+				Console.Write(input.Select(x => x.ToString()).Aggregate((x1, x2) => x1 + ", " + x2));
+				Console.Write("\n");
+				return 0f;
+
 			}
 		}
 	}

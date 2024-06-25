@@ -1,4 +1,5 @@
 ﻿using AscentLanguage.Parser;
+using AscentLanguage.Splitter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,9 @@ namespace AscentLanguage.Util
 			return strings.Any(x => x.StartsWith(c));
 		}
 
-		public static float ConvertToFloat(char[] value)
+		public static float ConvertToFloat(string value)
 		{
-			var valueLength = FindLengthToUse(value);
+			var valueLength = value.Length;
 
 			if (value == null || valueLength == 0)
 			{
@@ -149,10 +150,49 @@ namespace AscentLanguage.Util
 				Console.WriteLine($"{GetIndent(indentLevel)}GrabVariable:");
 				Console.WriteLine($"{GetIndent(indentLevel + 4)}Variable: {new string(variableExpr.VariableToken.tokenBuffer)}");
 			}
+			else if (expr is IncrementVariableExpression variableIncrementExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}GrabVariable(Incremement):");
+				Console.WriteLine($"{GetIndent(indentLevel + 4)}Variable: {new string(variableIncrementExpr.VariableToken.tokenBuffer)}");
+			}
+			else if (expr is DecrementVariableExpression variableDecrementExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}GrabVariable(Decrement):");
+				Console.WriteLine($"{GetIndent(indentLevel + 4)}Variable: {new string(variableDecrementExpr.VariableToken.tokenBuffer)}");
+			}
 			else if (expr is ReturnExpression returnExpr)
 			{
 				Console.WriteLine($"{GetIndent(indentLevel)}Return:");
 				PrintExpression(returnExpr.Expression, indentLevel + 2);
+			}
+			else if (expr is ForLoopExpression forExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}For Loop:");
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Definition:");
+				PrintExpression(forExpr.Defintion, indentLevel + 4);
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Condition:");
+				PrintExpression(forExpr.Condition, indentLevel + 4);
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Suffix:");
+				PrintExpression(forExpr.Suffix, indentLevel + 4);
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Expressions:");
+				for (int i = 0; i < forExpr.Contents.Length; i++)
+				{
+					PrintExpression(forExpr.Contents[i], indentLevel + 4);
+				}
+			}
+			else if (expr is WhileLoopExpression whileExpr)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}While Loop:");
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Condition:");
+				PrintExpression(whileExpr.Condition, indentLevel + 4);
+				Console.WriteLine($"{GetIndent(indentLevel + 2)}Expressions:");
+				for (int i = 0; i < whileExpr.Contents.Length; i++)
+				{
+					PrintExpression(whileExpr.Contents[i], indentLevel + 4);
+				}
+			}
+			else if (expr is NilExpression nilExpr)
+			{
 			}
 			else
 			{
@@ -163,6 +203,32 @@ namespace AscentLanguage.Util
 		private static string GetIndent(int indentLevel)
 		{
 			return new string(' ', indentLevel * 2);
+		}
+
+		public static void PrintTokenContainer(TokenContainer container, int indentLevel = 0)
+		{
+			if (container is SingleTokenContainer single)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}SingleTokenContainer:");
+				Console.Write($"{GetIndent(indentLevel + 2)}");
+				for (int i = 0; i < single.Expression.Length; i++)
+				{
+					Console.Write($"{single.Expression[i].type}, ");
+				}
+				Console.Write("\n");
+			}
+			else if (container is MultipleTokenContainer multiple)
+			{
+				Console.WriteLine($"{GetIndent(indentLevel)}MultipleTokenContainer:");
+				for (int i = 0; i < multiple.tokenContainers.Count; i++)
+				{
+					PrintTokenContainer(multiple.tokenContainers[i], indentLevel + 2);
+				}
+			}
+			else
+			{
+				throw new InvalidOperationException("Invalid container type");
+			}
 		}
 	}
 }

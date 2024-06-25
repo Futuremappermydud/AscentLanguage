@@ -9,6 +9,10 @@ namespace AscentLanguage.Tokenizer
 		private static readonly List<Tokenizer> tokenizers =
 		[
 			new QueryTokenizer(),
+			new WordMatchTokenizer("++", TokenType.Increment),
+			new WordMatchTokenizer("--", TokenType.Decrement),
+			new WordMatchTokenizer("+=", TokenType.AdditionAssignment),
+			new WordMatchTokenizer("-=", TokenType.SubtractionAssignment),
 			new SingleCharTokenizer('+', TokenType.Addition, true),
 			new SubtractionTokenizer(),
 			new SingleCharTokenizer('*', TokenType.Multiplication, true),
@@ -28,6 +32,8 @@ namespace AscentLanguage.Tokenizer
 			new SingleCharTokenizer('{', TokenType.LeftScope, false),
 			new SingleCharTokenizer('}', TokenType.RightScope, false),
 			new WordMatchTokenizer("return", TokenType.Return),
+			new ForLoopTokenizer(),
+			new WhileLoopTokenizer(),
 			new FunctionDefinitionTokenizer(),
 			new FunctionArgumentTokenizer(),
 			new FunctionTokenizer(),
@@ -42,7 +48,7 @@ namespace AscentLanguage.Tokenizer
 			List<string> variableDefinitions = new List<string>();
 			List<FunctionDefinition> functionDefinitions = new List<FunctionDefinition>();
 			List<Token> tokens = new List<Token>();
-			string scope = "";
+			Stack<string> scope = new(["GLOBAL"]);
 
 			string trimmedExpression = new string(expression.ToCharArray().Where(x=>!char.IsWhiteSpace(x)).ToArray());
 
@@ -56,18 +62,28 @@ namespace AscentLanguage.Tokenizer
 				foreach (var tokenizer in tokenizers)
 				{
 					long position = stream.Position;
-					if (tokenizer.IsMatch(peek, br, stream, ref variableDefinitions, ref functionDefinitions, scope, tokens))
+					if (tokenizer.IsMatch(peek, br, stream, ref variableDefinitions, ref functionDefinitions, scope.Peek(), tokens))
 					{
 						stream.Position = position;
-						tokens.Add(tokenizer.GetToken(peek, br, stream, ref variableDefinitions, ref functionDefinitions, scope));
-						if (tokenizer is FunctionDefinitionTokenizer functionDefinitionTokenizer)
+						tokens.Add(tokenizer.GetToken(peek, br, stream, ref variableDefinitions, ref functionDefinitions, scope.Peek()));
+						if (tokenizer is FunctionDefinitionTokenizer)
 						{
 							var token = tokens.Last();
-							scope = new string(token.tokenBuffer, 0, Utility.FindLengthToUse(token.tokenBuffer));
+							scope.Push(token.tokenBuffer);
+						}
+						if (tokenizer is ForLoopTokenizer)
+						{
+							var token = tokens.Last();
+							scope.Push(scope.Peek() + "_" + token.tokenBuffer);
+						}
+						if (tokenizer is WhileLoopTokenizer)
+						{
+							var token = tokens.Last();
+							scope.Push(scope.Peek() + "_" + token.tokenBuffer);
 						}
 						if (tokenizer is SingleCharTokenizer singleCharTokenizer && singleCharTokenizer.Token == '}')
 						{
-							scope = "";
+							scope.Pop();
 						}
 						succeeded = true;
 						break;

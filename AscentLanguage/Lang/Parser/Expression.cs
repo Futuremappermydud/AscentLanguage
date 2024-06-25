@@ -90,7 +90,7 @@ namespace AscentLanguage.Parser
 			}
 			else if (Token.type == TokenType.Query)
 			{
-				var buffer = new string(Token.tokenBuffer, 0, Utility.FindLengthToUse(Token.tokenBuffer));
+				var buffer = Token.tokenBuffer;
 				if (ascentVariableMap != null && ascentVariableMap.QueryVariables.TryGetValue(buffer, out float value))
 				{
 					return value;
@@ -118,12 +118,72 @@ namespace AscentLanguage.Parser
 
 		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
 		{
-			var name = new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer));
+			var name = FunctionToken.tokenBuffer;
 			var definition = ascentVariableMap.Functions.FirstOrDefault(x => x.Key == name);
 			if (definition.Value != null)
 			{
 				definition.Value.contents = Contents;
 				definition.Value.defined = true;
+			}
+			return null;
+		}
+	}
+
+	public class ForLoopExpression : Expression
+	{
+		public Expression Defintion { get; }
+		public Expression Condition { get; }
+		public Expression Suffix { get; }
+		public Expression[] Contents { get; }
+
+		public ForLoopExpression(Expression defintion, Expression condition, Expression suffix, Expression[] contents)
+		{
+			Defintion = defintion;
+			Condition = condition;
+			Suffix = suffix;
+			Contents = contents;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			Defintion.Evaluate(ascentVariableMap);
+			while (Condition.Evaluate(ascentVariableMap) > 0.5f)
+			{
+				foreach (var expression in Contents)
+				{
+					var map = ascentVariableMap?.Clone();
+					expression.Evaluate(map);
+				}
+				Suffix.Evaluate(ascentVariableMap);
+			}
+			return null;
+		}
+	}
+
+	public class WhileLoopExpression : Expression
+	{
+		public Expression Condition { get; }
+		public Expression[] Contents { get; }
+
+		public WhileLoopExpression(Expression condition, Expression[] contents)
+		{
+			Condition = condition;
+			Contents = contents;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			while (Condition.Evaluate(ascentVariableMap) > 0.5f)
+			{
+				foreach (var expression in Contents)
+				{
+					var map = ascentVariableMap?.Clone();
+					expression.Evaluate(map);
+					foreach (var item in ascentVariableMap.Variables.Select(x => x.Key))
+					{
+						ascentVariableMap.Variables[item] = map.Variables[item];
+					}
+				}
 			}
 			return null;
 		}
@@ -175,7 +235,7 @@ namespace AscentLanguage.Parser
 
 		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
 		{
-			var name = new string(FunctionToken.tokenBuffer, 0, Utility.FindLengthToUse(FunctionToken.tokenBuffer));
+			var name = FunctionToken.tokenBuffer;
 			var function = AscentFunctions.GetFunction(name);
 			var args = Arguments.Select(x => x.Evaluate(ascentVariableMap) ?? 0f).ToArray();
 			if (function == null)
@@ -238,7 +298,7 @@ namespace AscentLanguage.Parser
 			{
 				throw new InvalidOperationException("Assignment Expression cannot be null");
 			}
-			ascentVariableMap.Variables[new string(VariableToken.tokenBuffer, 0, Utility.FindLengthToUse(VariableToken.tokenBuffer))] = Assignment?.Evaluate(ascentVariableMap) ?? 0f;
+			ascentVariableMap.Variables[VariableToken.tokenBuffer] = Assignment?.Evaluate(ascentVariableMap) ?? 0f;
 			return null;
 		}
 	}
@@ -258,9 +318,109 @@ namespace AscentLanguage.Parser
 			{
 				throw new InvalidOperationException("Variable map cannot be null");
 			}
-			if (ascentVariableMap.Variables.TryGetValue(new string(VariableToken.tokenBuffer, 0, Utility.FindLengthToUse(VariableToken.tokenBuffer)), out float value))
+			if (ascentVariableMap.Variables.TryGetValue(VariableToken.tokenBuffer, out float value))
 			{
 				return value;
+			}
+			return null;
+		}
+	}
+
+	public class IncrementVariableExpression : Expression
+	{
+		public Token VariableToken { get; }
+
+		public IncrementVariableExpression(Token variableToken)
+		{
+			VariableToken = variableToken;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			if (ascentVariableMap == null)
+			{
+				throw new InvalidOperationException("Variable map cannot be null");
+			}
+			if (ascentVariableMap.Variables.TryGetValue(VariableToken.tokenBuffer, out float value))
+			{
+				ascentVariableMap.Variables[VariableToken.tokenBuffer] = value + 1;
+				return ascentVariableMap.Variables[VariableToken.tokenBuffer];
+			}
+			return null;
+		}
+	}
+
+	public class DecrementVariableExpression : Expression
+	{
+		public Token VariableToken { get; }
+
+		public DecrementVariableExpression(Token variableToken)
+		{
+			VariableToken = variableToken;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			if (ascentVariableMap == null)
+			{
+				throw new InvalidOperationException("Variable map cannot be null");
+			}
+			if (ascentVariableMap.Variables.TryGetValue(VariableToken.tokenBuffer, out float value))
+			{
+				ascentVariableMap.Variables[VariableToken.tokenBuffer] = value - 1;
+				return ascentVariableMap.Variables[VariableToken.tokenBuffer];
+			}
+			return null;
+		}
+	}
+
+	public class AdditionAssignmentExpression : Expression
+	{
+		public Token VariableToken { get; }
+		public Expression Expression { get; }
+
+		public AdditionAssignmentExpression(Token variableToken, Expression expression)
+		{
+			VariableToken = variableToken;
+			Expression = expression;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			if (ascentVariableMap == null)
+			{
+				throw new InvalidOperationException("Variable map cannot be null");
+			}
+			if (ascentVariableMap.Variables.TryGetValue(VariableToken.tokenBuffer, out float value))
+			{
+				ascentVariableMap.Variables[VariableToken.tokenBuffer] = value + (Expression.Evaluate(ascentVariableMap) ?? 0f);
+				return ascentVariableMap.Variables[VariableToken.tokenBuffer];
+			}
+			return null;
+		}
+	}
+
+	public class SubtractionAssignmentExpression : Expression
+	{
+		public Token VariableToken { get; }
+		public Expression Expression { get; }
+
+		public SubtractionAssignmentExpression(Token variableToken, Expression expression)
+		{
+			VariableToken = variableToken;
+			Expression = expression;
+		}
+
+		public override float? Evaluate(AscentVariableMap? ascentVariableMap)
+		{
+			if (ascentVariableMap == null)
+			{
+				throw new InvalidOperationException("Variable map cannot be null");
+			}
+			if (ascentVariableMap.Variables.TryGetValue(VariableToken.tokenBuffer, out float value))
+			{
+				ascentVariableMap.Variables[VariableToken.tokenBuffer] = value - (Expression.Evaluate(ascentVariableMap) ?? 0f);
+				return ascentVariableMap.Variables[VariableToken.tokenBuffer];
 			}
 			return null;
 		}
