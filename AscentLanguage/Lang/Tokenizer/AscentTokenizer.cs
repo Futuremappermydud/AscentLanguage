@@ -11,6 +11,8 @@ namespace AscentLanguage.Tokenizer
 			new QueryTokenizer(),
 			new WordMatchTokenizer("++", TokenType.Increment),
 			new WordMatchTokenizer("--", TokenType.Decrement),
+			new WordMatchTokenizer("+=", TokenType.AdditionAssignment),
+			new WordMatchTokenizer("-=", TokenType.SubtractionAssignment),
 			new SingleCharTokenizer('+', TokenType.Addition, true),
 			new SubtractionTokenizer(),
 			new SingleCharTokenizer('*', TokenType.Multiplication, true),

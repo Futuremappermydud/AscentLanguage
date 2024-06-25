@@ -28,7 +28,7 @@ Basic performance metrics are laid out [here!](./PERFORMANCE.md)
 		- Result: `15`
 - Operations
 	- The currently supported operations include
-	1.  Addition `+`
+	1. Addition `+`
 	2. Subtraction `-`
 	3. Multiplication `*`
 	4. Division `/`
@@ -36,7 +36,11 @@ Basic performance metrics are laid out [here!](./PERFORMANCE.md)
 	6. Modulus `%`
 	7. Greater than `>`
 	8. Lesser than `<`
-	9. Ternary `conditionExpression ? trueExpression : falseExpression`
+	9. Addition Assignment `+=`
+	10. Subtraction Assignment `-=`
+	11. Increment `++`
+	12. Decrement `--`
+	14. Ternary `conditionExpression ? trueExpression : falseExpression`
 - Functions
 	- Ascent supports a set of functions, mostly focused on math operations.
 	- Currently supported functions include

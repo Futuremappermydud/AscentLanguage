@@ -62,14 +62,20 @@ namespace AscentLanguage
 				}).Where(x=>x.Count > 0).ToList();
 
 				var containers = AscentSplitter.SplitTokens(tokens.ToList());
-				Utility.PrintTokenContainer(containers);
-				Console.WriteLine("\n");
+				if (debug)
+				{
+					Utility.PrintTokenContainer(containers);
+					Console.WriteLine("\n");
+				}
 
 				var parser = new AscentParser(containers as MultipleTokenContainer);
 
 				var parsedExpressions = parser.Parse(variableMap);
 
-				Console.WriteLine($"Parsed {parsedExpressions.Count} expressions");
+				if (debug)
+				{
+					Console.WriteLine($"Parsed {parsedExpressions.Count} expressions");
+				}
 
 				for (int i = 0; i < parsedExpressions.Count; i++)
 				{
@@ -87,7 +93,6 @@ namespace AscentLanguage
 			foreach (var evaluate in toEvaluate)
 			{
 				var eval = evaluate.Evaluate(variableMap);
-				Console.WriteLine($"Evaluated: {eval ?? -1f}");
 				if (eval.HasValue) result = eval.Value;
 			}
 			return result;

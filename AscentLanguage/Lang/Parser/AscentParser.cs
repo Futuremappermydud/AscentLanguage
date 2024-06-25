@@ -50,15 +50,9 @@ namespace AscentLanguage.Parser
 				}
 				else if (currentContainer is MultipleTokenContainer multiple)
 				{
-					Console.WriteLine($"Loading multiple token container with {multiple.tokenContainers.Count} containers");
 					_containerStack.InsertRange(0, multiple.tokenContainers);
 				}
 			}
-			for (int i = 0; i < _currentTokens.Length; i++)
-			{
-				Console.Write($"{_currentTokens[i].type}, ");
-			}
-			Console.WriteLine("");
 		}
 
 		public List<Expression> Parse(AscentVariableMap variableMap)
@@ -311,28 +305,31 @@ namespace AscentLanguage.Parser
 
 			if (CurrentTokenIs(TokenType.Variable))
 			{
-				if(NextTokenIs(TokenType.Increment))
+				var variableToken = _currentTokens[_position];
+				_position++;
+
+				switch (_position >= _currentTokens.Length ? TokenType.Variable :_currentTokens[_position].type)
 				{
-					var variableToken = _currentTokens[_position];
-					_position++;
-					_position++;
-					return new IncrementVariableExpression(variableToken);
-				}
-				else
-				{
-					if (NextTokenIs(TokenType.Decrement))
-					{
-						var variableToken = _currentTokens[_position];
-						_position++;
-						_position++;
+					case TokenType.Increment:
+						_position++; // Consume Increment
+						return new IncrementVariableExpression(variableToken);
+
+					case TokenType.Decrement:
+						_position++; // Consume Decrement
 						return new DecrementVariableExpression(variableToken);
-					}
-					else
-					{
-						var variableToken = _currentTokens[_position];
-						_position++;
+
+					case TokenType.AdditionAssignment:
+						_position++; // Consume +=
+						var addExpression = ParseExpression(variableMap);
+						return new AdditionAssignmentExpression(variableToken, addExpression);
+
+					case TokenType.SubtractionAssignment:
+						_position++; // Consume +=
+						var subExpression = ParseExpression(variableMap);
+						return new SubtractionAssignmentExpression(variableToken, subExpression);
+
+					default:
 						return new VariableExpression(variableToken);
-					}
 				}
 			}
 

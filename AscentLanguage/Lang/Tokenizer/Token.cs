@@ -6,6 +6,8 @@
 		Constant,
 		Increment,
 		Decrement,
+		AdditionAssignment,
+		SubtractionAssignment,
 		Addition,
 		Subtraction,
 		Multiplication,
