@@ -73,25 +73,25 @@ return query.a + query.b + query.c + query.d + query.e + query.f + query.g + que
 		[Benchmark]
 		public float Nesting()
 		{
-			return AscentEvaluator.Evaluate(nesting, null, true, false);
+			return AscentEvaluator.Evaluate(nesting, null, true, true);
 		}
 
 		[Benchmark]
 		public float Conditionals()
 		{
-			return AscentEvaluator.Evaluate(condtionals, null, true, false);
+			return AscentEvaluator.Evaluate(condtionals, null, true, true);
 		}
 
 		[Benchmark]
 		public float Queries()
 		{
-			return AscentEvaluator.Evaluate(queries, variableMap, true, false);
+			return AscentEvaluator.Evaluate(queries, variableMap, true, true);
 		}
 
 		[Benchmark]
 		public float Functions()
 		{
-			return AscentEvaluator.Evaluate(functions, null, true, false);
+			return AscentEvaluator.Evaluate(functions, null, true, true);
 		}
 	}
 }

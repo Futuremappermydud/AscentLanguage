@@ -87,6 +87,11 @@ namespace AscentLanguage.Splitter
 				}
 				_position++;
 			}
+			if (buffer.Count > 0)
+			{
+				currentScope?.tokenContainers.Add(new SingleTokenContainer(currentScope, buffer.ToArray()));
+				buffer.Clear();
+			}
 			return rootContainer;
 		}
 	}

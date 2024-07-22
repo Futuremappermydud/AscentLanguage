@@ -59,10 +59,9 @@ namespace AscentLanguage.Parser
 		{
 			var expressions = new List<Expression>();
 
-			while (_containerStack.Count > 0)
+			while (_containerStack.Count > 0 || _currentTokens.Length > 0)
 			{
 				LoadNextContainer();
-
 				while (_position < _currentTokens.Length)
 				{
 					var expression = ParseExpression(variableMap);
@@ -70,6 +69,7 @@ namespace AscentLanguage.Parser
 					{
 						expressions.Add(expression);
 					}
+					_currentTokens = Array.Empty<Token>();
 					_position++;
 				}
 			}
@@ -101,8 +101,26 @@ namespace AscentLanguage.Parser
 				}
 
 				_position++;
-				var right = ParseBinary(tokenPrecedence + 1, variableMap);
-				left = new BinaryExpression(left, operatorToken, right);
+				if (operatorToken.type == TokenType.TernaryConditional)
+				{
+					var condition = left;
+					var trueExpression = ParseExpression(variableMap);
+
+					if (!CurrentTokenIs(TokenType.Colon))
+					{
+						throw new FormatException("Expected ':' in ternary expression");
+					}
+					_position++; // consume ':'
+
+					var falseExpression = ParseExpression(variableMap);
+
+					return new TernaryExpression(condition, trueExpression, falseExpression);
+				}
+				else
+				{
+					var right = ParseBinary(tokenPrecedence + 1, variableMap);
+					left = new BinaryExpression(left, operatorToken, right);
+				}
 			}
 
 			return left;
@@ -271,28 +289,6 @@ namespace AscentLanguage.Parser
 				_position++; // consume '}'
 
 				return new WhileLoopExpression(condition, contents);
-			}
-
-			if (NextTokenIs(TokenType.TernaryConditional))
-			{
-
-				var condition = ParseExpression(variableMap);
-
-				if (CurrentTokenIs(TokenType.TernaryConditional))
-				{
-					_position++; // consume '?'
-					var trueExpression = ParseExpression(variableMap);
-
-					if (!CurrentTokenIs(TokenType.Colon))
-					{
-						throw new FormatException("Expected ':' in ternary expression");
-					}
-					_position++; // consume ':'
-
-					var falseExpression = ParseExpression(variableMap);
-
-					return new TernaryExpression(condition, trueExpression, falseExpression);
-				}
 			}
 
 			if (CurrentTokenIs(TokenType.Definition) || CurrentTokenIs(TokenType.Assignment))
